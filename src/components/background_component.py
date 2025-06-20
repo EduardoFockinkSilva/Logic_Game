@@ -1,5 +1,5 @@
 """
-Componente de background animado usando shaders OpenGL
+Componente de background animado usando shaders OpenGL moderno
 """
 
 import numpy as np
@@ -9,11 +9,12 @@ from OpenGL.GLU import *
 
 from .base_component import Component
 from ..shaders.shader_manager import ShaderManager
+from ..graphics.renderer import ModernRenderer
 
 
 class BackgroundComponent(Component):
     """
-    Componente que renderiza um background animado usando shaders.
+    Componente que renderiza um background animado usando shaders modernos.
     """
     
     def __init__(self, entity=None, shader_manager: ShaderManager = None):
@@ -26,9 +27,7 @@ class BackgroundComponent(Component):
         """
         super().__init__(entity)
         self.shader_manager = shader_manager
-        self.vao = None
-        self.vbo = None
-        self.ebo = None
+        self.renderer = None
         self.time = 0.0
         
         # Dados do quad que cobre toda a tela
@@ -46,7 +45,10 @@ class BackgroundComponent(Component):
         ], dtype=np.uint32)
     
     def _initialize(self) -> None:
-        """Inicializa os buffers OpenGL e carrega o shader."""
+        """Inicializa o renderizador e carrega o shader."""
+        # Inicializar renderer
+        self.renderer = ModernRenderer()
+        
         # Carregar shader se não foi fornecido
         if self.shader_manager is None:
             self.shader_manager = ShaderManager()
@@ -62,58 +64,38 @@ class BackgroundComponent(Component):
             print(f"Erro ao carregar shader: {e}")
             return
         
-        # Criar VAO (Vertex Array Object)
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
-        
-        # Criar VBO (Vertex Buffer Object)
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW)
-        
-        # Criar EBO (Element Buffer Object)
-        self.ebo = glGenBuffers(1)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, self.indices.nbytes, self.indices, GL_STATIC_DRAW)
-        
-        # Configurar atributos do vertex shader
-        # Posição
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * 4, None)
-        glEnableVertexAttribArray(0)
-        
-        # Coordenadas de textura
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * 4, ctypes.c_void_p(3 * 4))
-        glEnableVertexAttribArray(1)
-        
-        # Desvincular VAO
-        glBindVertexArray(0)
+        # Criar VAO para o background
+        self.renderer.create_quad_vao("background", self.vertices, self.indices)
     
     def _update(self, delta_time: float) -> None:
         """Atualiza o tempo para animação."""
         self.time += delta_time
     
     def _render(self, renderer) -> None:
-        """Renderiza o background."""
-        # Usar shader de background
+        """Renderiza o background usando renderizador moderno."""
+        if self.renderer is None or self.shader_manager is None:
+            return
+            
         try:
-            self.shader_manager.use_program("background")
-            
+            # Obter programa de shader
+            shader_program = self.shader_manager.get_program("background")
+            if not shader_program:
+                return
+                
             # Definir uniforms
+            self.shader_manager.use_program("background")
             self.shader_manager.set_uniform_1f("uTime", self.time)
-            self.shader_manager.set_uniform_2f("uResolution", 800.0, 600.0)  # TODO: obter da janela
+            self.shader_manager.set_uniform_2f("uResolution", 800.0, 600.0)
             
-            # Renderizar quad
-            glBindVertexArray(self.vao)
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
-            glBindVertexArray(0)
+            # Renderizar usando renderer moderno
+            self.renderer.render_quad("background", shader_program)
+            
         except Exception as e:
             print(f"Erro ao renderizar background: {e}")
+        finally:
+            glUseProgram(0)
     
     def _destroy(self) -> None:
         """Libera recursos OpenGL."""
-        if self.vao is not None:
-            glDeleteVertexArrays(1, [self.vao])
-        if self.vbo is not None:
-            glDeleteBuffers(1, [self.vbo])
-        if self.ebo is not None:
-            glDeleteBuffers(1, [self.ebo]) 
+        if self.renderer:
+            self.renderer.cleanup() 

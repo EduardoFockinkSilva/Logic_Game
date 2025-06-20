@@ -51,16 +51,18 @@ class GameEngine:
         # Inicializar Pygame
         pygame.init()
         
-        # Configurar display
+        # Configurar display com OpenGL moderno
         self.display = pygame.display.set_mode(
             (self.width, self.height), 
             DOUBLEBUF | OPENGL
         )
         pygame.display.set_caption(self.title)
         
-        # Configurar OpenGL
+        # Configurar OpenGL moderno
         glViewport(0, 0, self.width, self.height)
         glEnable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glClearColor(0.0, 0.0, 0.0, 1.0)
         
         # Inicializar componentes
@@ -102,7 +104,11 @@ class GameEngine:
         """Renderiza todos os componentes."""
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
-        for component in self.components:
+        # Configurar viewport para renderização 3D (background)
+        glViewport(0, 0, self.width, self.height)
+        
+        for i, component in enumerate(self.components):
+            print(f"[GameEngine] Renderizando componente {i}: {component.__class__.__name__}")
             component.render(self)
         
         pygame.display.flip()

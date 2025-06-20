@@ -6,6 +6,7 @@ Main entry point - Arquitetura Modular
 
 from src.core.game_engine import GameEngine
 from src.components.background_component import BackgroundComponent
+from src.components.text_component import TextComponent
 
 
 def main():
@@ -22,6 +23,17 @@ def main():
     # Adicionar componente de background animado
     background = BackgroundComponent(shader_manager=engine.get_shader_manager())
     engine.add_component(background)
+
+    # Adicionar componente de texto centralizado no topo
+    title = TextComponent(
+        text="Logic Game",
+        font_size=48,
+        color=(255,255,255),
+        position=(0.5, 0.05),
+        window_size=(800,600),
+        shader_manager=engine.get_shader_manager()
+    )
+    engine.add_component(title)
     
     # Executar o jogo
     engine.run()

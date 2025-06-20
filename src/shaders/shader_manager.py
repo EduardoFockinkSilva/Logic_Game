@@ -31,6 +31,11 @@ class ShaderManager:
         Returns:
             ID do programa de shader compilado
         """
+        # Verificar se já foi carregado
+        if name in self.programs:
+            print(f"[ShaderManager] Shader '{name}' já carregado, reutilizando...")
+            return self.programs[name]
+        
         # Ler arquivos de shader
         vertex_source = self._read_shader_file(vertex_path)
         fragment_source = self._read_shader_file(fragment_path)
@@ -57,6 +62,18 @@ class ShaderManager:
         # Armazenar programa
         self.programs[name] = program
         return program
+    
+    def has_program(self, name: str) -> bool:
+        """
+        Verifica se um programa de shader existe.
+        
+        Args:
+            name: Nome do programa
+            
+        Returns:
+            True se o programa existe, False caso contrário
+        """
+        return name in self.programs
     
     def _read_shader_file(self, filepath: str) -> str:
         """
