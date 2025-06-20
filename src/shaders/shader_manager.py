@@ -33,8 +33,9 @@ class ShaderManager:
         """
         # Verificar se já foi carregado
         if name in self.programs:
-            print(f"[ShaderManager] Shader '{name}' já carregado, reutilizando...")
-            return self.programs[name]
+            program_id = self.programs[name]
+            if program_id is not None:
+                return program_id
         
         # Ler arquivos de shader
         vertex_source = self._read_shader_file(vertex_path)
@@ -121,7 +122,11 @@ class ShaderManager:
             name: Nome do programa de shader
         """
         if name in self.programs:
-            glUseProgram(self.programs[name])
+            program_id = self.programs[name]
+            if program_id is not None:
+                glUseProgram(program_id)
+            else:
+                raise ValueError(f"Programa de shader '{name}' é inválido")
         else:
             raise ValueError(f"Programa de shader '{name}' não encontrado")
     
@@ -139,30 +144,39 @@ class ShaderManager:
     
     def set_uniform_1f(self, name: str, value: float) -> None:
         """Define um uniform float."""
-        location = glGetUniformLocation(glGetInteger(GL_CURRENT_PROGRAM), name)
-        if location != -1:
-            glUniform1f(location, value)
+        current_program = glGetInteger(GL_CURRENT_PROGRAM)
+        if current_program is not None:
+            location = glGetUniformLocation(current_program, name)
+            if location != -1:
+                glUniform1f(location, value)
     
     def set_uniform_2f(self, name: str, x: float, y: float) -> None:
         """Define um uniform vec2."""
-        location = glGetUniformLocation(glGetInteger(GL_CURRENT_PROGRAM), name)
-        if location != -1:
-            glUniform2f(location, x, y)
+        current_program = glGetInteger(GL_CURRENT_PROGRAM)
+        if current_program is not None:
+            location = glGetUniformLocation(current_program, name)
+            if location != -1:
+                glUniform2f(location, x, y)
     
     def set_uniform_3f(self, name: str, x: float, y: float, z: float) -> None:
         """Define um uniform vec3."""
-        location = glGetUniformLocation(glGetInteger(GL_CURRENT_PROGRAM), name)
-        if location != -1:
-            glUniform3f(location, x, y, z)
+        current_program = glGetInteger(GL_CURRENT_PROGRAM)
+        if current_program is not None:
+            location = glGetUniformLocation(current_program, name)
+            if location != -1:
+                glUniform3f(location, x, y, z)
     
     def set_uniform_4f(self, name: str, x: float, y: float, z: float, w: float) -> None:
         """Define um uniform vec4."""
-        location = glGetUniformLocation(glGetInteger(GL_CURRENT_PROGRAM), name)
-        if location != -1:
-            glUniform4f(location, x, y, z, w)
+        current_program = glGetInteger(GL_CURRENT_PROGRAM)
+        if current_program is not None:
+            location = glGetUniformLocation(current_program, name)
+            if location != -1:
+                glUniform4f(location, x, y, z, w)
     
     def cleanup(self) -> None:
         """Limpa todos os shaders e programas."""
         for program in self.programs.values():
-            glDeleteProgram(program)
+            if program is not None:
+                glDeleteProgram(program)
         self.programs.clear() 

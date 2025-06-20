@@ -6,7 +6,7 @@ import numpy as np
 import ctypes
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Optional
 
 
 class ModernRenderer:
@@ -20,7 +20,6 @@ class ModernRenderer:
         self.vaos: Dict[str, int] = {}
         self.vbos: Dict[str, int] = {}
         self.ebos: Dict[str, int] = {}
-        self.current_shader = None
     
     def create_quad_vao(self, name: str, vertices: np.ndarray, indices: np.ndarray) -> None:
         """

@@ -4,7 +4,6 @@ Componente para renderizar texto usando OpenGL moderno
 
 import pygame
 import numpy as np
-import ctypes
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from .base_component import Component
@@ -24,19 +23,16 @@ class TextComponent(Component):
         self.width = 0
         self.height = 0
         self.renderer = None
-        self.shader_manager = shader_manager  # Usar o shader manager do GameEngine
+        self.shader_manager = shader_manager
         self.vao_name = f"text_{id(self)}"
         self.shader_ok = False
         self._texture_created = False
 
     def initialize(self):
-        print("[TextComponent] Chamou initialize()")
         super().initialize()
 
     def _initialize(self):
-        print("[TextComponent] Inicializando...")
-        
-        # Usar o renderer do GameEngine ou criar um novo
+        # Inicializar renderer
         self.renderer = ModernRenderer()
         
         # Usar o shader manager fornecido ou criar um novo
@@ -46,14 +42,11 @@ class TextComponent(Component):
         # Carregar shader de texto apenas se não foi carregado antes
         try:
             if not self.shader_manager.has_program("text"):
-                program = self.shader_manager.load_shader(
+                self.shader_manager.load_shader(
                     "text",
                     "src/shaders/text_vertex.glsl",
                     "src/shaders/text_fragment.glsl"
                 )
-                print(f"[TextComponent] Shader de texto carregado: {program}")
-            else:
-                print("[TextComponent] Shader de texto já carregado")
             self.shader_ok = True
         except Exception as e:
             print(f"[TextComponent] Erro ao carregar shader de texto: {e}")
@@ -68,11 +61,9 @@ class TextComponent(Component):
         # Calcular posição centralizada
         x = (self.window_size[0] - self.width) // 2
         y = int(self.window_size[1] * self.position[1])
-        print(f"[TextComponent] Posição do texto: x={x}, y={y}")
         
         # Criar VAO para o texto
         self.renderer.create_text_vao(self.vao_name, self.width, self.height, x, y)
-        print(f"[TextComponent] VAO criado: {self.vao_name}")
 
     def _create_texture(self):
         """Cria a textura do texto."""
@@ -89,15 +80,12 @@ class TextComponent(Component):
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glBindTexture(GL_TEXTURE_2D, 0)
-        print(f"[TextComponent] Textura criada: {self.texture_id}, tamanho: {self.width}x{self.height}")
 
     def _update(self, delta_time):
         pass
 
     def _render(self, renderer):
-        print("[TextComponent] Chamou _render()")
         if self.renderer is None or self.shader_manager is None or not self.shader_ok:
-            print("[TextComponent] Renderer ou shader não inicializado corretamente.")
             return
         
         # Salvar estado OpenGL atual
@@ -130,21 +118,12 @@ class TextComponent(Component):
                 location = glGetUniformLocation(shader_program, "textTexture")
                 if location != -1:
                     glUniform1i(location, 0)
-                    print(f"[TextComponent] Uniform 'textTexture' setado em {location}")
-                else:
-                    print("[TextComponent] Uniform 'textTexture' não encontrado!")
                 
                 loc_proj = glGetUniformLocation(shader_program, "uProjection")
                 if loc_proj != -1:
                     glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
-                    print(f"[TextComponent] Uniform 'uProjection' setado em {loc_proj}")
-                else:
-                    print("[TextComponent] Uniform 'uProjection' não encontrado!")
                 
-                print(f"[TextComponent] Renderizando quad VAO: {self.vao_name}, shader: {shader_program}, textura: {self.texture_id}")
                 self.renderer.render_quad(self.vao_name, shader_program, self.texture_id)
-            else:
-                print("[TextComponent] Shader program não encontrado!")
         except Exception as e:
             print(f"[TextComponent] Erro ao renderizar texto: {e}")
         finally:

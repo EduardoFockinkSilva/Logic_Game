@@ -53,15 +53,16 @@ class BackgroundComponent(Component):
         if self.shader_manager is None:
             self.shader_manager = ShaderManager()
         
-        # Carregar shader de background
+        # Carregar shader de background apenas se não foi carregado antes
         try:
-            self.shader_manager.load_shader(
-                "background",
-                "src/shaders/background_vertex.glsl",
-                "src/shaders/background_fragment.glsl"
-            )
+            if not self.shader_manager.has_program("background"):
+                self.shader_manager.load_shader(
+                    "background",
+                    "src/shaders/background_vertex.glsl",
+                    "src/shaders/background_fragment.glsl"
+                )
         except FileNotFoundError as e:
-            print(f"Erro ao carregar shader: {e}")
+            print(f"[BackgroundComponent] Erro ao carregar shader: {e}")
             return
         
         # Criar VAO para o background
@@ -91,7 +92,7 @@ class BackgroundComponent(Component):
             self.renderer.render_quad("background", shader_program)
             
         except Exception as e:
-            print(f"Erro ao renderizar background: {e}")
+            print(f"[BackgroundComponent] Erro ao renderizar background: {e}")
         finally:
             glUseProgram(0)
     
