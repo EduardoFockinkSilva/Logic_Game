@@ -91,6 +91,14 @@ class GameEngine:
             component.destroy()
             self.components.remove(component)
     
+    def clear_components(self) -> None:
+        """
+        Remove todos os componentes do jogo.
+        """
+        for component in self.components:
+            component.destroy()
+        self.components.clear()
+    
     def update(self) -> None:
         """Atualiza todos os componentes."""
         current_time = time.time()

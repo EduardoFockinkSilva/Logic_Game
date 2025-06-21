@@ -1,0 +1,40 @@
+{
+  "name": "Game Level",
+  "background": {
+    "type": "background",
+    "shader_manager": "default"
+  },
+  "components": [
+    {
+      "type": "text",
+      "text": "Game Level",
+      "font_size": 36,
+      "color": [255, 255, 255],
+      "position": [0.5, 0.1],
+      "window_size": [800, 600],
+      "shader_manager": "default"
+    },
+    {
+      "type": "text",
+      "text": "Welcome to the game!",
+      "font_size": 24,
+      "color": [200, 200, 200],
+      "position": [0.5, 0.3],
+      "window_size": [800, 600],
+      "shader_manager": "default"
+    },
+    {
+      "type": "menu_button",
+      "text": "Back to Menu",
+      "position": [50, 50],
+      "size": [150, 40],
+      "color": [255, 255, 255],
+      "hover_color": [200, 200, 255],
+      "window_size": [800, 600],
+      "shader_manager": "default",
+      "callback": "back_to_menu",
+      "bg_color": [80, 80, 120],
+      "border_color": [120, 120, 180]
+    }
+  ]
+} 
