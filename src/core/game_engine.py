@@ -6,10 +6,11 @@ import pygame
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import time
 
 from ..components.base_component import Component
+from ..components.debug_hud import DebugHUD
 from ..shaders.shader_manager import ShaderManager
 
 
@@ -35,6 +36,9 @@ class GameEngine:
         
         # Componentes do jogo
         self.components: List[Component] = []
+        
+        # HUD de debug
+        self.debug_hud = None
         
         # Gerenciador de shaders
         self.shader_manager = ShaderManager()
@@ -64,6 +68,13 @@ class GameEngine:
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glClearColor(0.0, 0.0, 0.0, 1.0)
+        
+        # Criar e adicionar HUD de debug
+        self.debug_hud = DebugHUD(
+            window_size=(self.width, self.height),
+            shader_manager=self.shader_manager
+        )
+        self.add_component(self.debug_hud)
         
         # Inicializar componentes
         for component in self.components:
@@ -133,11 +144,17 @@ class GameEngine:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return False
+                elif event.key == pygame.K_F1:
+                    # Alternar HUD de debug com F1
+                    if self.debug_hud:
+                        self.debug_hud.toggle()
+                        print(f"HUD de debug {'ativado' if self.debug_hud.enabled else 'desativado'}")
             
             # Passar eventos do mouse para componentes que precisam
             for component in self.components:
-                if hasattr(component, 'handle_mouse_event'):
-                    component.handle_mouse_event(event)
+                mouse_handler = getattr(component, 'handle_mouse_event', None)
+                if mouse_handler is not None:
+                    mouse_handler(event)
         
         return True
     
@@ -149,6 +166,7 @@ class GameEngine:
         
         print(f"Jogo iniciado: {self.title}")
         print("Pressione ESC para sair")
+        print("Pressione F1 para alternar o HUD de debug")
         
         while self.running:
             # Processar eventos
@@ -183,4 +201,8 @@ class GameEngine:
     
     def get_shader_manager(self) -> ShaderManager:
         """Retorna o gerenciador de shaders."""
-        return self.shader_manager 
+        return self.shader_manager
+    
+    def get_debug_hud(self) -> Optional[DebugHUD]:
+        """Retorna o HUD de debug."""
+        return self.debug_hud 

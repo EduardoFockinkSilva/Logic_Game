@@ -12,13 +12,14 @@ from ..shaders.shader_manager import ShaderManager
 
 
 class TextComponent(Component):
-    def __init__(self, text, font_size=48, color=(255,255,255), position=(0.5, 0.05), window_size=(800,600), shader_manager=None):
+    def __init__(self, text, font_size=48, color=(255,255,255), position=(0.5, 0.05), window_size=(800,600), shader_manager=None, centered=True):
         super().__init__()
         self.text = text
         self.font_size = font_size
         self.color = color
         self.position = position  # Normalizado (0-1)
         self.window_size = window_size
+        self.centered = centered  # Se o texto deve ser centralizado
         self.texture_id = None
         self.width = 0
         self.height = 0
@@ -27,6 +28,7 @@ class TextComponent(Component):
         self.vao_name = f"text_{id(self)}"
         self.shader_ok = False
         self._texture_created = False
+        self._last_text = None  # Para detectar mudanças no texto
 
     def initialize(self):
         super().initialize()
@@ -53,13 +55,18 @@ class TextComponent(Component):
             self.shader_ok = False
             return
         
-        # Criar textura do texto apenas uma vez
-        if not self._texture_created:
-            self._create_texture()
-            self._texture_created = True
+        # Criar textura inicial
+        self._create_texture()
+        self._last_text = self.text
         
-        # Calcular posição centralizada
-        x = (self.window_size[0] - self.width) // 2
+        # Calcular posição usando coordenadas normalizadas
+        if self.centered:
+            # Centralizar o texto
+            x = int(self.window_size[0] * self.position[0] - self.width // 2)
+        else:
+            # Usar posição absoluta
+            x = int(self.window_size[0] * self.position[0])
+        
         y = int(self.window_size[1] * self.position[1])
         
         # Criar VAO para o texto
@@ -73,6 +80,10 @@ class TextComponent(Component):
         self.width, self.height = text_surface.get_size()
         text_data = pygame.image.tostring(text_surface, "RGBA", True)
 
+        # Deletar textura anterior se existir
+        if self.texture_id:
+            glDeleteTextures([self.texture_id])
+
         # Criar textura OpenGL
         self.texture_id = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, self.texture_id)
@@ -81,8 +92,37 @@ class TextComponent(Component):
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glBindTexture(GL_TEXTURE_2D, 0)
 
+    def _update_texture_if_needed(self):
+        """Recria a textura se o texto mudou."""
+        if self.text != self._last_text:
+            self._create_texture()
+            self._last_text = self.text
+            
+            # Recalcular posição e recriar VAO
+            if self.centered:
+                # Centralizar o texto
+                x = int(self.window_size[0] * self.position[0] - self.width // 2)
+            else:
+                # Usar posição absoluta
+                x = int(self.window_size[0] * self.position[0])
+            
+            y = int(self.window_size[1] * self.position[1])
+            
+            # Limpar VAO anterior
+            if self.vao_name in self.renderer.vaos:
+                glDeleteVertexArrays(1, [self.renderer.vaos[self.vao_name]])
+                glDeleteBuffers(1, [self.renderer.vbos[self.vao_name]])
+                glDeleteBuffers(1, [self.renderer.ebos[self.vao_name]])
+                del self.renderer.vaos[self.vao_name]
+                del self.renderer.vbos[self.vao_name]
+                del self.renderer.ebos[self.vao_name]
+            
+            # Criar novo VAO
+            self.renderer.create_text_vao(self.vao_name, self.width, self.height, x, y)
+
     def _update(self, delta_time):
-        pass
+        # Verificar se o texto mudou e atualizar textura se necessário
+        self._update_texture_if_needed()
 
     def _render(self, renderer):
         if self.renderer is None or self.shader_manager is None or not self.shader_ok:

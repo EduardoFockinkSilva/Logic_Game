@@ -239,10 +239,10 @@ class MenuButton(Component):
         mouse_gl_y = 1 - (mouse_y / self.window_size[1]) * 2
         
         # Convert button coordinates to OpenGL space (same as in _create_button_quad)
-        button_x = x + 25  # Apply the same offset as the button
-        button_y = y + 25  # Apply the same offset as the button
+        button_x = x   # Apply the same offset as the button
+        button_y = y  # Apply the same offset as the button
         button_gl_x = (button_x / self.window_size[0]) * 2 - 1
-        button_gl_y = 1 - (button_y / self.window_size[1]) * 2
+        button_gl_y = -(1 - (button_y / self.window_size[1]) * 2)
         button_gl_width = (width / self.window_size[0]) * 2
         button_gl_height = (height / self.window_size[1]) * 2
         
