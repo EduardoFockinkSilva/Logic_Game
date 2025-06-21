@@ -125,6 +125,11 @@ class GameEngine:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return False
+            
+            # Passar eventos do mouse para componentes que precisam
+            for component in self.components:
+                if hasattr(component, 'handle_mouse_event'):
+                    component.handle_mouse_event(event)
         
         return True
     

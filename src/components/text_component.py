@@ -88,9 +88,10 @@ class TextComponent(Component):
         if self.renderer is None or self.shader_manager is None or not self.shader_ok:
             return
         
-        # Salvar estado OpenGL atual
-        glPushAttrib(GL_ALL_ATTRIB_BITS)
-        glPushMatrix()
+        # Salvar estado OpenGL atual (compatível com OpenGL 3.3+)
+        prev_viewport = glGetIntegerv(GL_VIEWPORT)
+        prev_blend = glIsEnabled(GL_BLEND)
+        prev_depth_test = glIsEnabled(GL_DEPTH_TEST)
         
         # Configurar para renderização 2D
         glViewport(0, 0, self.window_size[0], self.window_size[1])
@@ -128,8 +129,15 @@ class TextComponent(Component):
             print(f"[TextComponent] Erro ao renderizar texto: {e}")
         finally:
             # Restaurar estado OpenGL
-            glPopMatrix()
-            glPopAttrib()
+            glViewport(prev_viewport[0], prev_viewport[1], prev_viewport[2], prev_viewport[3])
+            if prev_blend:
+                glEnable(GL_BLEND)
+            else:
+                glDisable(GL_BLEND)
+            if prev_depth_test:
+                glEnable(GL_DEPTH_TEST)
+            else:
+                glDisable(GL_DEPTH_TEST)
 
     def _destroy(self):
         if self.texture_id:
