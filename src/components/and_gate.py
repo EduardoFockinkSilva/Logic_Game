@@ -64,12 +64,12 @@ class ANDGate(Component):
         
         # Carregar shaders
         try:
-            # Load button shader for gate background
-            if not self.shader_manager.has_program("button"):
+            # Load gate shader for gate background
+            if not self.shader_manager.has_program("gate"):
                 self.shader_manager.load_shader(
-                    "button",
-                    "src/shaders/button_vertex.glsl",
-                    "src/shaders/button_fragment.glsl"
+                    "gate",
+                    "src/shaders/gate_vertex.glsl",
+                    "src/shaders/gate_fragment.glsl"
                 )
             
             # Load text shader for text
@@ -191,24 +191,28 @@ class ANDGate(Component):
         ], dtype=np.float32)
         
         try:
-            # Render gate background using button shader
-            button_shader = self.shader_manager.get_program("button")
-            if button_shader:
-                glUseProgram(button_shader)
+            # Render gate background using gate shader
+            gate_shader = self.shader_manager.get_program("gate")
+            if gate_shader:
+                glUseProgram(gate_shader)
                 
                 # Calcular resultado da porta AND
                 result = self._calculate_and_result()
-                color = self.on_color if result else self.off_color
-                print(f"[ANDGate] Result: {result}, Using color: {color}")
+                
+                # Escolher cor baseada no resultado
+                if result:
+                    color = self.on_color
+                else:
+                    color = self.off_color
                 
                 # Aplicar matriz de projeção
-                loc_proj = glGetUniformLocation(button_shader, "uProjection")
+                loc_proj = glGetUniformLocation(gate_shader, "uProjection")
                 if loc_proj != -1:
                     glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
                 
                 # Desenhar quad da porta com cor
                 glVertexAttrib4f(2, color[0]/255.0, color[1]/255.0, color[2]/255.0, 0.9)
-                self.gate_renderer.render_quad(self.vao_name, button_shader)
+                self.gate_renderer.render_quad(self.vao_name, gate_shader)
             
             # Render text using text shader
             text_shader = self.shader_manager.get_program("text")

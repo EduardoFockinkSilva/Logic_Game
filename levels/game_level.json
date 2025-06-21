@@ -51,8 +51,8 @@
       "type": "and_gate",
       "position": [400, 250],
       "size": [120, 80],
-      "off_color": [80, 0, 0],
-      "on_color": [0, 255, 0],
+      "off_color": [128, 128, 128],
+      "on_color": [255, 255, 224],
       "text_color": [255, 255, 255],
       "window_size": [800, 600],
       "shader_manager": "default"
