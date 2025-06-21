@@ -233,22 +233,18 @@ class MenuButton(Component):
         x, y = self.position
         width, height = self.size
         
-        # Apply the same coordinate transformation as the button rendering
-        # Convert mouse coordinates to the same space as the button
-        mouse_gl_x = (mouse_x / self.window_size[0]) * 2 - 1
-        mouse_gl_y = 1 - (mouse_y / self.window_size[1]) * 2
+        # Apply the same offset as the button rendering (y + 25)
+        button_x = x
+        button_y = y - 25  # Same offset as in _create_button_quad
         
-        # Convert button coordinates to OpenGL space (same as in _create_button_quad)
-        button_x = x   # Apply the same offset as the button
-        button_y = y  # Apply the same offset as the button
-        button_gl_x = (button_x / self.window_size[0]) * 2 - 1
-        button_gl_y = -(1 - (button_y / self.window_size[1]) * 2)
-        button_gl_width = (width / self.window_size[0]) * 2
-        button_gl_height = (height / self.window_size[1]) * 2
+        # Convert mouse Y to match the button's coordinate system
+        # The button uses: gl_y = 1 - (y / self.window_size[1]) * 2
+        # So we need to invert the mouse Y coordinate to match
+        inverted_mouse_y = self.window_size[1] - mouse_y
         
-        # Check if mouse is inside the button in OpenGL coordinates
-        if (button_gl_x <= mouse_gl_x <= button_gl_x + button_gl_width and 
-            button_gl_y <= mouse_gl_y <= button_gl_y + button_gl_height):
+        # Check if mouse is inside the button rectangle
+        if (button_x <= mouse_x <= button_x + width and 
+            button_y <= inverted_mouse_y <= button_y + height):
             if not self.is_hovered:
                 self.is_hovered = True
                 self._update_hover_texture()
