@@ -19,7 +19,7 @@ def main():
     pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 3)
     pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
     pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF | pygame.OPENGL)
-    pygame.display.set_caption("Teste de MenuButton")
+    pygame.display.set_caption("Teste Final - MenuButton")
 
     glViewport(0, 0, WIDTH, HEIGHT)
     glEnable(GL_DEPTH_TEST)
@@ -38,6 +38,13 @@ def main():
         callback=test_callback
     )
     button.initialize()
+
+    print("=== TESTE FINAL ===")
+    print(f"Botão criado na posição: {button.position}")
+    print(f"Área clicável: ({button.position[0]}, {button.position[1]}) até ({button.position[0] + button.size[0]}, {button.position[1] + button.size[1]})")
+    print("Mova o mouse sobre o botão e clique para testar!")
+    print("Pressione ESC para sair")
+    print("==================")
 
     running = True
     while running:

@@ -113,9 +113,10 @@ class MenuButton(Component):
         glBindTexture(GL_TEXTURE_2D, 0)
 
     def _create_button_quad(self):
-        """Cria os dados do quad do botão (retângulo preenchido)."""
+        """Cria os dados do quad do botão (retângulo preenchido) com leve ajuste para cima (somando ao Y)."""
         x, y = self.position
         width, height = self.size
+        y = y + 25  # Somar para subir
         # Converter coordenadas de tela para OpenGL (-1 a 1)
         gl_x = (x / self.window_size[0]) * 2 - 1
         gl_y = 1 - (y / self.window_size[1]) * 2
@@ -139,7 +140,7 @@ class MenuButton(Component):
         # Centralizar texto no botão (usando coordenadas de tela)
         # x e y são as coordenadas do canto superior esquerdo do botão
         text_x = x + (width - self.text_width) // 2
-        text_y = y + (height - self.text_height - 50) // 2
+        text_y = y + (height - self.text_height) // 2  # Removido o offset -50
         
         # Converter para coordenadas OpenGL (-1 a 1)
         # Considerando que Y maior = mais para cima no sistema usado
@@ -191,12 +192,15 @@ class MenuButton(Component):
                 loc_proj = glGetUniformLocation(shader_program, "uProjection")
                 if loc_proj != -1:
                     glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
-                # Usar cor do botão como cor base
-                glUniform1i(glGetUniformLocation(shader_program, "textTexture"), 0)
+                
                 # Desenhar quad do botão (sem textura)
+                glUniform1i(glGetUniformLocation(shader_program, "textTexture"), 0)
                 glVertexAttrib4f(2, color[0]/255.0, color[1]/255.0, color[2]/255.0, 0.85)
                 self.button_renderer.render_quad(self.vao_name, shader_program)
-                # Desenhar texto por cima
+                
+                # Desenhar texto por cima com a cor correta
+                text_color = self.hover_color if self.is_hovered else self.color
+                glVertexAttrib4f(2, text_color[0]/255.0, text_color[1]/255.0, text_color[2]/255.0, 1.0)
                 glBindTexture(GL_TEXTURE_2D, self.text_texture_id)
                 self.text_renderer.render_quad(self.text_vao_name, shader_program, self.text_texture_id)
                 glBindTexture(GL_TEXTURE_2D, 0)
@@ -229,10 +233,22 @@ class MenuButton(Component):
         x, y = self.position
         width, height = self.size
         
-        # Debug: imprimir coordenadas para verificar
-        # print(f"Mouse: ({mouse_x}, {mouse_y}), Button: ({x}, {y}) to ({x+width}, {y+height})")
+        # Apply the same coordinate transformation as the button rendering
+        # Convert mouse coordinates to the same space as the button
+        mouse_gl_x = (mouse_x / self.window_size[0]) * 2 - 1
+        mouse_gl_y = 1 - (mouse_y / self.window_size[1]) * 2
         
-        if (x <= mouse_x <= x + width and y <= mouse_y <= y + height):
+        # Convert button coordinates to OpenGL space (same as in _create_button_quad)
+        button_x = x + 25  # Apply the same offset as the button
+        button_y = y + 25  # Apply the same offset as the button
+        button_gl_x = (button_x / self.window_size[0]) * 2 - 1
+        button_gl_y = 1 - (button_y / self.window_size[1]) * 2
+        button_gl_width = (width / self.window_size[0]) * 2
+        button_gl_height = (height / self.window_size[1]) * 2
+        
+        # Check if mouse is inside the button in OpenGL coordinates
+        if (button_gl_x <= mouse_gl_x <= button_gl_x + button_gl_width and 
+            button_gl_y <= mouse_gl_y <= button_gl_y + button_gl_height):
             if not self.is_hovered:
                 self.is_hovered = True
                 self._update_hover_texture()
