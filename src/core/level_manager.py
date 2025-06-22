@@ -41,6 +41,9 @@ class LevelManager:
         # Level progression - automatically detect all levels except menu.json
         self.level_sequence = self._discover_levels()
         self.current_level_index = 0
+        
+        # Control for completion button to avoid duplicates
+        self.completion_button_added = False
     
     def _discover_levels(self):
         """Automatically discover all level files except menu.json, sorted by filename."""
@@ -51,18 +54,23 @@ class LevelManager:
     
     def load_level(self, level_name):
         """Load a level from JSON file"""
-        level_file = os.path.join(self.levels_dir, f"{level_name}.json")
+        print(f"Loading level: {level_name}")
         
+        # Clear current level
+        self.clear_current_level()
+        
+        # Reset completion button flag for new level
+        self.completion_button_added = False
+        
+        # Load level file
+        level_file = os.path.join(self.levels_dir, f"{level_name}.json")
         if not os.path.exists(level_file):
             print(f"Level file not found: {level_file}")
-            return False
+            return
         
         try:
             with open(level_file, 'r') as f:
                 level_data = json.load(f)
-            
-            # Clear current level
-            self.clear_current_level()
             
             # Load background
             if "background" in level_data:
@@ -292,7 +300,8 @@ class LevelManager:
     
     def add_completion_button(self):
         """Add completion button when level is completed (dynamic for all levels)."""
-        if self.check_level_completion():
+        # Only add completion button if level is completed and button hasn't been added yet
+        if self.check_level_completion() and not self.completion_button_added:
             # If not last level, show Next Level; else, show Finish
             if self.current_level_index < len(self.level_sequence) - 1:
                 next_button = MenuButton(
@@ -322,6 +331,9 @@ class LevelManager:
                     border_color=(100, 100, 180)
                 )
                 self.game_engine.add_component(finish_button)
+            
+            # Mark that completion button has been added
+            self.completion_button_added = True
     
     # Callback methods
     def start_game(self):
