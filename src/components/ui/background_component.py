@@ -8,19 +8,13 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from src.components.core.base_component import Component
-import sys
-import os
-
-# Adicionar o diretório src ao path para imports absolutos
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.shaders.shader_manager import ShaderManager
-from src.graphics.renderer import ModernRenderer
-
+from src.core.shader_manager import ShaderManager
+from src.core.renderer import ModernRenderer
 
 class BackgroundComponent(Component):
     """Componente que renderiza background animado usando shaders modernos"""
     
-    def __init__(self, entity=None, shader_manager: ShaderManager = None):
+    def __init__(self, entity=None, shader_manager=None):
         """Inicializa componente de background"""
         super().__init__(entity)
         self.shader_manager = shader_manager

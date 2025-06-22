@@ -12,7 +12,7 @@ import time
 from src.components.core.base_component import Component
 from src.components.ui.debug_hud import DebugHUD
 from src.components.core.connection_manager import ConnectionManager
-from ..shaders.shader_manager import ShaderManager
+from src.core.shader_manager import ShaderManager
 
 
 class GameEngine:

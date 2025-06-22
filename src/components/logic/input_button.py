@@ -4,6 +4,8 @@ Botão de entrada alternável on/off
 
 import pygame
 from src.components.ui.button_base import ButtonBase
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class InputButton(ButtonBase):

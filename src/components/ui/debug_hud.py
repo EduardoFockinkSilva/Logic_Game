@@ -5,6 +5,8 @@ HUD de debug para informações de desenvolvimento
 import pygame
 from src.components.core.base_component import Component
 from src.components.ui.text_component import TextComponent
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class DebugHUD(Component):

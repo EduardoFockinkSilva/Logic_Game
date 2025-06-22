@@ -23,6 +23,8 @@ from src.components.core.interfaces import LogicInputSource
 from src.components.logic.logic_gate import LogicGate
 from src.components.ui.button_base import ButtonBase
 from src.components.core.base_component import Component
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class ComponentRegistry:

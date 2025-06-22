@@ -11,15 +11,10 @@ import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from src.components.core.base_component import TexturedComponent
-import sys
-import os
 from src.components.core.interfaces import LogicInputSource, RenderableState
 from typing import List, Callable, Optional, Tuple
-from src.graphics.renderer import ModernRenderer
-from src.shaders.shader_manager import ShaderManager
-
-# Adicionar o diretório src ao path para imports absolutos
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class LogicGate(TexturedComponent, LogicInputSource, RenderableState):

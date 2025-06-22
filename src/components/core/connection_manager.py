@@ -10,6 +10,8 @@ from typing import Dict, List, Tuple, Optional
 from src.components.ui.connection_component import ConnectionComponent
 from src.components.core.interfaces import LogicInputSource, RenderableState
 from src.components.core.base_component import Component
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class ConnectionManager:

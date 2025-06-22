@@ -17,6 +17,8 @@ from typing import Optional, Any, Tuple, List
 import numpy as np
 import pygame
 from OpenGL.GL import *
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class Component(ABC):

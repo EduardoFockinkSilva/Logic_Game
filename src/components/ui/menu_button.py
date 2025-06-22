@@ -6,6 +6,8 @@ import pygame
 import numpy as np
 from OpenGL.GL import *
 from src.components.ui.button_base import ButtonBase
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class MenuButton(ButtonBase):

@@ -11,11 +11,11 @@ import sys
 import os
 from src.components.core.interfaces import RenderableState
 from typing import Optional, Callable, Tuple
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 # Adicionar o diretório src ao path para imports absolutos
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.graphics.renderer import ModernRenderer
-from src.shaders.shader_manager import ShaderManager
 
 
 class ButtonBase(TexturedComponent, RenderableState):

@@ -8,13 +8,11 @@ from OpenGL.GLU import *
 from src.components.core.base_component import RenderableComponent
 from src.components.core.interfaces import LogicInputSource, RenderableState
 from typing import Tuple
-import sys
-import os
 
 # Adicionar o diretório src ao path para imports absolutos
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.graphics.renderer import ModernRenderer
-from src.shaders.shader_manager import ShaderManager
+# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.core.renderer import ModernRenderer
+from src.core.shader_manager import ShaderManager
 
 
 class LEDComponent(RenderableComponent, RenderableState):
