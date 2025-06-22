@@ -11,6 +11,7 @@ import time
 
 from ..components.base_component import Component
 from ..components.debug_hud import DebugHUD
+from ..components.connection_manager import ConnectionManager
 from ..shaders.shader_manager import ShaderManager
 
 
@@ -42,6 +43,12 @@ class GameEngine:
         
         # Gerenciador de shaders
         self.shader_manager = ShaderManager()
+        
+        # Gerenciador de conexões
+        self.connection_manager = ConnectionManager(
+            window_size=(width, height),
+            shader_manager=self.shader_manager
+        )
         
         # Level manager reference
         self.level_manager = None
@@ -91,6 +98,11 @@ class GameEngine:
             component: Componente a ser adicionado
         """
         self.components.append(component)
+        
+        # Adicionar ao gerenciador de conexões se for um componente lógico
+        if hasattr(component, 'get_result') or hasattr(component, 'get_state'):
+            self.connection_manager.add_component(component)
+        
         if self.running:
             component.initialize()
     
@@ -102,6 +114,9 @@ class GameEngine:
             component: Componente a ser removido
         """
         if component in self.components:
+            # Remover do gerenciador de conexões
+            self.connection_manager.remove_component(component)
+            
             component.destroy()
             self.components.remove(component)
     
@@ -118,6 +133,9 @@ class GameEngine:
         """
         Remove todos os componentes do jogo.
         """
+        # Limpar conexões
+        self.connection_manager.clear_all_connections()
+        
         for component in self.components:
             component.destroy()
         self.components.clear()
@@ -131,6 +149,9 @@ class GameEngine:
         for component in self.components:
             component.update(self.delta_time)
         
+        # Atualizar conexões
+        self.connection_manager.update(self.delta_time)
+        
         # Check for level completion
         if self.level_manager:
             self.level_manager.add_completion_button()
@@ -142,8 +163,12 @@ class GameEngine:
         # Configurar viewport para renderização
         glViewport(0, 0, self.width, self.height)
         
+        # Renderizar componentes
         for component in self.components:
             component.render(self)
+        
+        # Renderizar conexões por último para ficarem sobre os componentes
+        self.connection_manager.render(self)
         
         pygame.display.flip()
     
@@ -165,6 +190,10 @@ class GameEngine:
                     if self.debug_hud:
                         self.debug_hud.toggle()
                         print(f"HUD de debug {'ativado' if self.debug_hud.enabled else 'desativado'}")
+                elif event.key == pygame.K_F2:
+                    # Mostrar informações das conexões
+                    connection_count = self.connection_manager.get_connection_count()
+                    print(f"[ConnectionManager] Total de conexões: {connection_count}")
             
             # Passar eventos do mouse para componentes que precisam
             for component in self.components:
@@ -183,6 +212,7 @@ class GameEngine:
         print(f"Jogo iniciado: {self.title}")
         print("Pressione ESC para sair")
         print("Pressione F1 para alternar o HUD de debug")
+        print("Pressione F2 para mostrar informações das conexões")
         
         while self.running:
             # Processar eventos
@@ -201,19 +231,19 @@ class GameEngine:
     
     def cleanup(self) -> None:
         """Limpa recursos do jogo."""
-        print("Finalizando jogo...")
+        print("Limpando recursos do jogo...")
         
-        # Destruir componentes
+        # Limpar conexões
+        self.connection_manager.clear_all_connections()
+        
+        # Limpar componentes
         for component in self.components:
             component.destroy()
         
-        # Limpar shaders
-        self.shader_manager.cleanup()
-        
-        # Finalizar Pygame
+        # Limpar Pygame
         pygame.quit()
         
-        print("Jogo finalizado!")
+        print("Jogo finalizado.")
     
     def get_shader_manager(self) -> ShaderManager:
         """Retorna o gerenciador de shaders."""
@@ -221,4 +251,8 @@ class GameEngine:
     
     def get_debug_hud(self) -> Optional[DebugHUD]:
         """Retorna o HUD de debug."""
-        return self.debug_hud 
+        return self.debug_hud
+    
+    def get_connection_manager(self) -> ConnectionManager:
+        """Retorna o gerenciador de conexões."""
+        return self.connection_manager 

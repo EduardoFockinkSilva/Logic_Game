@@ -1,60 +1,73 @@
 """
-Módulo components - Sistema de componentes do jogo
+Componentes do jogo de lógica.
+
+Este pacote contém todos os componentes visuais e lógicos do jogo,
+incluindo portas lógicas, botões, LEDs, conexões e elementos de interface.
 """
 
+# Componentes base
 from .base_component import Component, RenderableComponent, TexturedComponent
+from .interfaces import LogicInputSource, RenderableState
+
+# Portas lógicas
 from .logic_gate import LogicGate
-from .button_base import ButtonBase
-from .debug_hud import DebugHUD
-from .text_component import TextComponent
-from .menu_button import MenuButton
-from .input_button import InputButton
-from .background_component import BackgroundComponent
 from .and_gate import ANDGate
 from .or_gate import ORGate
 from .not_gate import NOTGate
-from .led_component import LEDComponent
-from .utils import (
-    flip_surface, create_text_surface, calculate_centered_position,
-    is_point_in_rect, is_point_in_circle, clamp, lerp
-)
-from .factories import (
-    component_registry, register_components, create_logic_gate, create_button
-)
 
-# Registrar todos os componentes no registry
-register_components()
+# Botões
+from .button_base import ButtonBase
+from .input_button import InputButton
+from .menu_button import MenuButton
+
+# Componentes visuais
+from .led_component import LEDComponent
+from .text_component import TextComponent
+from .background_component import BackgroundComponent
+
+# Sistema de conexões
+from .connection_component import ConnectionComponent
+from .connection_manager import ConnectionManager
+
+# Utilitários e fábricas
+from .utils import *
+from .factories import component_registry, register_components, create_logic_gate, create_button
+
+# Debug
+from .debug_hud import DebugHUD
 
 __all__ = [
     # Componentes base
     'Component',
-    'RenderableComponent',
+    'RenderableComponent', 
     'TexturedComponent',
+    'LogicInputSource',
+    'RenderableState',
+    
+    # Portas lógicas
     'LogicGate',
-    'ButtonBase',
-    
-    # Componentes específicos
-    'DebugHUD', 
-    'TextComponent',
-    'MenuButton',
-    'InputButton',
-    'BackgroundComponent',
     'ANDGate',
-    'ORGate',
+    'ORGate', 
     'NOTGate',
-    'LEDComponent',
     
-    # Factories e Registry
-    'component_registry',
-    'create_logic_gate',
-    'create_button',
+    # Botões
+    'ButtonBase',
+    'InputButton',
+    'MenuButton',
+    
+    # Componentes visuais
+    'LEDComponent',
+    'TextComponent',
+    'BackgroundComponent',
+    
+    # Sistema de conexões
+    'ConnectionComponent',
+    'ConnectionManager',
     
     # Utilitários
-    'flip_surface',
-    'create_text_surface',
-    'calculate_centered_position',
-    'is_point_in_rect',
-    'is_point_in_circle',
-    'clamp',
-    'lerp'
+    'component_registry',
+    'register_components',
+    'create_logic_gate',
+    'create_button',
+    'DebugHUD',
 ] 

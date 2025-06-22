@@ -24,6 +24,7 @@
       "shader_manager": "default"
     },
     {
+      "id": "input_button_1",
       "type": "input_button",
       "text": "Input 1",
       "position": [180, 220],
@@ -36,6 +37,7 @@
       "initial_state": false
     },
     {
+      "id": "input_button_2",
       "type": "input_button",
       "text": "Input 2",
       "position": [180, 320],
@@ -48,6 +50,7 @@
       "initial_state": false
     },
     {
+      "id": "or_gate_1",
       "type": "or_gate",
       "position": [330, 200],
       "size": [120, 80],
@@ -55,10 +58,10 @@
       "on_color": [255, 192, 203],
       "text_color": [255, 255, 255],
       "window_size": [800, 600],
-      "shader_manager": "default",
-      "inputs": ["Input 1", "Input 2"]
+      "shader_manager": "default"
     },
     {
+      "id": "not_gate_1",
       "type": "not_gate",
       "position": [330, 320],
       "size": [120, 80],
@@ -66,10 +69,10 @@
       "on_color": [173, 216, 230],
       "text_color": [255, 255, 255],
       "window_size": [800, 600],
-      "shader_manager": "default",
-      "inputs": ["Input 2"]
+      "shader_manager": "default"
     },
     {
+      "id": "and_gate_1",
       "type": "and_gate",
       "position": [500, 260],
       "size": [120, 80],
@@ -77,18 +80,17 @@
       "on_color": [255, 255, 224],
       "text_color": [255, 255, 255],
       "window_size": [800, 600],
-      "shader_manager": "default",
-      "inputs": ["ORGate", "NOTGate"]
+      "shader_manager": "default"
     },
     {
+      "id": "led_1",
       "type": "led",
       "position": [670, 270],
       "radius": 25,
       "off_color": [64, 64, 64],
       "on_color": [0, 255, 0],
       "window_size": [800, 600],
-      "shader_manager": "default",
-      "inputs": ["ANDGate"]
+      "shader_manager": "default"
     },
     {
       "type": "menu_button",
@@ -102,6 +104,37 @@
       "callback": "back_to_menu",
       "bg_color": [80, 80, 120],
       "border_color": [120, 120, 180]
+    }
+  ],
+  "connections": [
+    {
+      "from": "input_button_1",
+      "to": "or_gate_1",
+      "input_index": 0
+    },
+    {
+      "from": "input_button_2",
+      "to": "or_gate_1",
+      "input_index": 1
+    },
+    {
+      "from": "input_button_2",
+      "to": "not_gate_1",
+      "input_index": 0
+    },
+    {
+      "from": "or_gate_1",
+      "to": "and_gate_1",
+      "input_index": 0
+    },
+    {
+      "from": "not_gate_1",
+      "to": "and_gate_1",
+      "input_index": 1
+    },
+    {
+      "from": "and_gate_1",
+      "to": "led_1"
     }
   ]
 } 

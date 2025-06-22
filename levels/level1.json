@@ -24,6 +24,7 @@
       "shader_manager": "default"
     },
     {
+      "id": "input_button_1",
       "type": "input_button",
       "text": "Input 1",
       "position": [180, 220],
@@ -36,6 +37,7 @@
       "initial_state": false
     },
     {
+      "id": "input_button_2",
       "type": "input_button",
       "text": "Input 2",
       "position": [180, 320],
@@ -48,6 +50,7 @@
       "initial_state": false
     },
     {
+      "id": "and_gate_1",
       "type": "and_gate",
       "position": [330, 260],
       "size": [140, 90],
@@ -58,6 +61,7 @@
       "shader_manager": "default"
     },
     {
+      "id": "led_1",
       "type": "led",
       "position": [550, 270],
       "radius": 30,
@@ -78,6 +82,22 @@
       "callback": "back_to_menu",
       "bg_color": [70, 70, 100],
       "border_color": [120, 120, 160]
+    }
+  ],
+  "connections": [
+    {
+      "from": "input_button_1",
+      "to": "and_gate_1",
+      "input_index": 0
+    },
+    {
+      "from": "input_button_2",
+      "to": "and_gate_1",
+      "input_index": 1
+    },
+    {
+      "from": "and_gate_1",
+      "to": "led_1"
     }
   ]
 } 

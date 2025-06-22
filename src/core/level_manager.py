@@ -30,7 +30,8 @@ class LevelManager:
             "complete_level": self.complete_level
         }
         
-        # Store components for reference
+        # Store components for reference with IDs
+        self.components_by_id = {}
         self.input_buttons = []
         self.and_gates = []
         self.or_gates = []
@@ -75,11 +76,13 @@ class LevelManager:
                     if component:
                         self.game_engine.add_component(component)
             
-            # Connect gates to their input buttons after all components are loaded
-            self._connect_gates_to_inputs()
-            
-            # Connect LEDs to their input sources
-            self._connect_leds_to_inputs()
+            # Process explicit connections from JSON AFTER all components are added to engine
+            if "connections" in level_data:
+                self._process_explicit_connections(level_data["connections"])
+            else:
+                # Fallback to automatic connections
+                self._connect_gates_to_inputs()
+                self._connect_leds_to_inputs()
             
             self.current_level = level_name
             print(f"Loaded level: {level_data.get('name', level_name)}")
@@ -89,13 +92,66 @@ class LevelManager:
             print(f"Error loading level {level_name}: {e}")
             return False
     
+    def _process_explicit_connections(self, connections_data):
+        """
+        Process explicit connections defined in the JSON file.
+        
+        Expected format:
+        "connections": [
+            {
+                "from": "input_button_1",
+                "to": "and_gate_1",
+                "input_index": 0
+            },
+            {
+                "from": "and_gate_1", 
+                "to": "led_1"
+            }
+        ]
+        """
+        print(f"[LevelManager] Processing {len(connections_data)} explicit connections...")
+        
+        connection_manager = self.game_engine.get_connection_manager()
+        
+        for connection in connections_data:
+            from_id = connection.get("from")
+            to_id = connection.get("to")
+            input_index = connection.get("input_index", 0)
+            
+            from_component = self.components_by_id.get(from_id)
+            to_component = self.components_by_id.get(to_id)
+            
+            if not from_component or not to_component:
+                print(f"[LevelManager] Warning: Connection {from_id} -> {to_id} failed (component not found)")
+                continue
+            
+            # Connect based on component types
+            if hasattr(to_component, 'add_input'):
+                # Connecting to a gate
+                to_component.add_input(from_component)
+                print(f"[LevelManager] Connected {from_id} -> {to_id} (input {input_index})")
+                
+                # Create visual connection
+                connection_manager.create_connection_for_components(from_component, to_component)
+                
+            elif hasattr(to_component, 'set_input_source'):
+                # Connecting to an LED
+                to_component.set_input_source(from_component)
+                print(f"[LevelManager] Connected {from_id} -> {to_id} (LED input)")
+                
+                # Create visual connection
+                connection_manager.create_connection_for_components(from_component, to_component)
+    
     def create_component(self, component_data):
         """Create a component from JSON data"""
         component_type = component_data.get("type")
+        component_id = component_data.get("id", f"{component_type}_{len(self.components_by_id)}")
         shader_manager = self.game_engine.get_shader_manager()
         
+        component = None
+        
         if component_type == "text":
-            return TextComponent(
+            component = TextComponent(
                 text=component_data["text"],
                 font_size=component_data["font_size"],
                 color=tuple(component_data["color"]),
@@ -108,7 +164,7 @@ class LevelManager:
             callback_name = component_data.get("callback")
             callback = self.callbacks.get(callback_name) if callback_name else None
             
-            return MenuButton(
+            component = MenuButton(
                 text=component_data["text"],
                 position=tuple(component_data["position"]),
                 size=tuple(component_data["size"]),
@@ -122,7 +178,7 @@ class LevelManager:
             )
         
         elif component_type == "input_button":
-            button = InputButton(
+            component = InputButton(
                 text=component_data["text"],
                 position=tuple(component_data["position"]),
                 size=tuple(component_data.get("size", [100, 60])),
@@ -133,11 +189,10 @@ class LevelManager:
                 shader_manager=shader_manager,
                 initial_state=component_data.get("initial_state", False)
             )
-            self.input_buttons.append(button)
-            return button
+            self.input_buttons.append(component)
         
         elif component_type == "and_gate":
-            gate = ANDGate(
+            component = ANDGate(
                 position=tuple(component_data["position"]),
                 size=tuple(component_data.get("size", [120, 80])),
                 off_color=tuple(component_data.get("off_color", [80, 80, 80])),
@@ -146,11 +201,10 @@ class LevelManager:
                 window_size=tuple(component_data["window_size"]),
                 shader_manager=shader_manager
             )
-            self.and_gates.append(gate)
-            return gate
+            self.and_gates.append(component)
         
         elif component_type == "or_gate":
-            gate = ORGate(
+            component = ORGate(
                 position=tuple(component_data["position"]),
                 size=tuple(component_data.get("size", [120, 80])),
                 off_color=tuple(component_data.get("off_color", [80, 80, 80])),
@@ -159,11 +213,10 @@ class LevelManager:
                 window_size=tuple(component_data["window_size"]),
                 shader_manager=shader_manager
             )
-            self.or_gates.append(gate)
-            return gate
+            self.or_gates.append(component)
         
         elif component_type == "not_gate":
-            gate = NOTGate(
+            component = NOTGate(
                 position=tuple(component_data["position"]),
                 size=tuple(component_data.get("size", [120, 80])),
                 off_color=tuple(component_data.get("off_color", [80, 80, 80])),
@@ -172,11 +225,10 @@ class LevelManager:
                 window_size=tuple(component_data["window_size"]),
                 shader_manager=shader_manager
             )
-            self.not_gates.append(gate)
-            return gate
+            self.not_gates.append(component)
         
         elif component_type == "led":
-            led = LEDComponent(
+            component = LEDComponent(
                 position=tuple(component_data["position"]),
                 radius=component_data.get("radius", 20),
                 off_color=tuple(component_data.get("off_color", [64, 64, 64])),
@@ -184,15 +236,21 @@ class LevelManager:
                 window_size=tuple(component_data["window_size"]),
                 shader_manager=shader_manager
             )
-            self.leds.append(led)
-            return led
+            self.leds.append(component)
         
         elif component_type == "background":
-            return BackgroundComponent(shader_manager=shader_manager)
+            component = BackgroundComponent(shader_manager=shader_manager)
         
         else:
             print(f"Unknown component type: {component_type}")
             return None
+        
+        # Store component with its ID for connection purposes
+        if component:
+            self.components_by_id[component_id] = component
+            print(f"[LevelManager] Created component: {component_id} ({component_type})")
+        
+        return component
     
     def _connect_gates_to_inputs(self):
         """Connect all gates to their input buttons based on component IDs"""
@@ -201,7 +259,8 @@ class LevelManager:
         if all_gates and self.input_buttons:
             for gate in all_gates:
                 for button in self.input_buttons:
-                    gate.add_input_button(button)
+                    gate.add_input(button)
+            print(f"[LevelManager] Connected {len(self.input_buttons)} inputs to {len(all_gates)} gates")
     
     def _connect_leds_to_inputs(self):
         """Connect LEDs to their input sources based on component IDs"""
@@ -210,10 +269,12 @@ class LevelManager:
         if self.leds and all_gates:
             for led in self.leds:
                 led.set_input_source(all_gates[0])
+            print(f"[LevelManager] Connected {len(self.leds)} LEDs to gates")
     
     def clear_current_level(self):
         """Clear all components from current level"""
         self.game_engine.clear_components()
+        self.components_by_id.clear()
         self.input_buttons.clear()
         self.and_gates.clear()
         self.or_gates.clear()
