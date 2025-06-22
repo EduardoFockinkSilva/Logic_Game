@@ -4,53 +4,19 @@ Testes para o componente LED - Testes unitários simples
 
 import unittest
 from unittest.mock import Mock
+import sys
+import os
 
-
-class MockLEDComponent:
-    """Mock simplificado do LED Component para testes."""
-    
-    def __init__(self, position, radius=20, 
-                 off_color=(64, 64, 64), on_color=(0, 255, 0),
-                 window_size=(800, 600), shader_manager=None, 
-                 input_source=None):
-        self.position = position
-        self.radius = radius
-        self.off_color = off_color
-        self.on_color = on_color
-        self.window_size = window_size
-        self.shader_manager = shader_manager
-        self.input_source = input_source
-    
-    def _get_led_state(self):
-        """Obtém o estado atual do LED baseado na fonte de entrada."""
-        if self.input_source is None:
-            return False
-        
-        # Se a fonte de entrada tem um método get_result, use-o
-        if hasattr(self.input_source, 'get_result'):
-            return self.input_source.get_result()
-        
-        # Se a fonte de entrada tem um método get_state, use-o
-        elif hasattr(self.input_source, 'get_state'):
-            return self.input_source.get_state()
-        
-        # Caso contrário, assuma que está desligado
-        return False
-    
-    def set_input_source(self, source):
-        """Define a fonte de entrada para o LED."""
-        self.input_source = source
-    
-    def get_state(self):
-        """Retorna o estado atual do LED."""
-        return self._get_led_state()
+# Adicionar o diretório src ao path para imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+from components.led_component import LEDComponent
 
 
 class TestLEDComponent(unittest.TestCase):
     
     def setUp(self):
         """Configuração inicial para cada teste."""
-        self.led = MockLEDComponent(
+        self.led = LEDComponent(
             position=(100, 100),
             radius=20,
             off_color=(64, 64, 64),
@@ -80,7 +46,7 @@ class TestLEDComponent(unittest.TestCase):
         self.led.set_input_source(mock_source)
         self.assertTrue(self.led.get_state())
         
-        # Test with get_state method
+        # Test with get_result method
         mock_source.get_result.return_value = False
         self.assertFalse(self.led.get_state())
     

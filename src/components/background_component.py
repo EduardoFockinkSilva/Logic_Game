@@ -8,8 +8,13 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from .base_component import Component
-from ..shaders.shader_manager import ShaderManager
-from ..graphics.renderer import ModernRenderer
+import sys
+import os
+
+# Adicionar o diretório src ao path para imports absolutos
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from shaders.shader_manager import ShaderManager
+from graphics.renderer import ModernRenderer
 
 
 class BackgroundComponent(Component):

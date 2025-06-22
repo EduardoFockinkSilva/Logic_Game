@@ -5,273 +5,113 @@ Componente para renderizar botões de menu clicáveis
 import pygame
 import numpy as np
 from OpenGL.GL import *
-from OpenGL.GLU import *
-from .base_component import Component
-from ..graphics.renderer import ModernRenderer
-from ..shaders.shader_manager import ShaderManager
+from .button_base import ButtonBase
 
 
-def _flip_surface(surface):
-    """Inverte a superfície verticalmente (corrige origem do OpenGL)."""
-    return pygame.transform.flip(surface, False, False)
-
-class MenuButton(Component):
+class MenuButton(ButtonBase):
+    """
+    Botão de menu retangular com efeitos de hover.
+    Usado para navegação e ações do menu.
+    """
+    
     def __init__(self, text, position, size=(200, 50), color=(100, 150, 255), 
                  hover_color=(150, 200, 255), window_size=(800, 600), 
                  shader_manager=None, callback=None, bg_color=(40, 40, 80), border_color=(180, 180, 220)):
-        super().__init__()
-        self.text = text
-        self.position = position  # (x, y) em coordenadas de tela
-        self.size = size
-        self.color = color
+        super().__init__(
+            text=text,
+            position=position,
+            size=size,
+            off_color=bg_color,
+            on_color=color,
+            text_color=color,
+            window_size=window_size,
+            shader_manager=shader_manager,
+            callback=callback,
+            button_type="rectangle"
+        )
         self.hover_color = hover_color
-        self.window_size = window_size
-        self.shader_manager = shader_manager
-        self.callback = callback
-        self.bg_color = bg_color
         self.border_color = border_color
-        
-        # Estado do botão
-        self.is_hovered = False
-        self.is_clicked = False
-        
-        # Recursos OpenGL
-        self.text_texture_id = None
-        self.text_width = 0
-        self.text_height = 0
-        self.button_renderer = None
-        self.text_renderer = None
-        self.vao_name = f"button_{id(self)}"
-        self.text_vao_name = f"button_text_{id(self)}"
-        self.shader_ok = False
-        self._texture_created = False
-        
-        # Dados do quad do botão
-        self.button_vertices = None
-        self.button_indices = None
-        self.text_vertices = None
-        self.text_indices = None
 
-    def initialize(self):
-        super().initialize()
-
-    def _initialize(self):
-        # Inicializar renderers
-        self.button_renderer = ModernRenderer()
-        self.text_renderer = ModernRenderer()
-        
-        # Usar o shader manager fornecido ou criar um novo
-        if self.shader_manager is None:
-            self.shader_manager = ShaderManager()
-        
-        # Carregar shader de texto
-        try:
-            if not self.shader_manager.has_program("text"):
-                self.shader_manager.load_shader(
-                    "text",
-                    "src/shaders/text_vertex.glsl",
-                    "src/shaders/text_fragment.glsl"
-                )
-            # Carregar shader de botão
-            if not self.shader_manager.has_program("button"):
-                self.shader_manager.load_shader(
-                    "button",
-                    "src/shaders/button_vertex.glsl",
-                    "src/shaders/button_fragment.glsl"
-                )
-            self.shader_ok = True
-        except Exception as e:
-            print(f"[MenuButton] Erro ao carregar shader: {e}")
-            self.shader_ok = False
-            return
-        
-        # Criar textura do texto apenas uma vez
-        if not self._texture_created:
-            self._create_text_texture()
-            self._texture_created = True
-        
-        # Criar dados do quad do botão e do texto
-        self._create_button_quad()
-        self._create_text_quad()
-        
-        # Criar VAOs
-        if self.button_vertices is not None and self.button_indices is not None:
-            self.button_renderer.create_quad_vao(self.vao_name, self.button_vertices, self.button_indices)
-        if self.text_vertices is not None and self.text_indices is not None:
-            self.text_renderer.create_quad_vao(self.text_vao_name, self.text_vertices, self.text_indices)
-
-    def _create_text_texture(self):
-        """Cria a textura do texto do botão, corrigindo a orientação."""
-        pygame.font.init()
-        # Reduzir o tamanho da fonte para caber no botão
-        font_size = min(20, self.size[1] // 2)  # Máximo 20px ou metade da altura do botão
-        font = pygame.font.SysFont('Arial', font_size, bold=True)
-        text_surface = font.render(self.text, True, self.color)
-        text_surface = _flip_surface(text_surface)  # Corrigir orientação
-        self.text_width, self.text_height = text_surface.get_size()
-        text_data = pygame.image.tostring(text_surface, "RGBA", True)
-
-        # Criar textura OpenGL
-        self.text_texture_id = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, self.text_texture_id)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.text_width, self.text_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glBindTexture(GL_TEXTURE_2D, 0)
-
-    def _create_button_quad(self):
-        """Cria os dados do quad do botão (retângulo preenchido) com ajuste correto para o topo ser a posição y."""
-        x, y = self.position
-        width, height = self.size
-        # Corrigir: usar y + height para alinhar o topo do botão com a coordenada de tela
-        gl_x = (x / self.window_size[0]) * 2 - 1
-        gl_y = 1 - ((y + height) / self.window_size[1]) * 2
-        gl_width = (width / self.window_size[0]) * 2
-        gl_height = (height / self.window_size[1]) * 2
-        self.button_vertices = np.array([
-            gl_x, gl_y, 0.0,          0.0, 0.0,  # inferior esquerdo
-            gl_x + gl_width, gl_y, 0.0,      1.0, 0.0,  # inferior direito
-            gl_x + gl_width, gl_y + gl_height, 0.0, 1.0, 1.0,  # superior direito
-            gl_x, gl_y + gl_height, 0.0,      0.0, 1.0   # superior esquerdo
-        ], dtype=np.float32)
-        self.button_indices = np.array([
-            0, 1, 2, 2, 3, 0
-        ], dtype=np.uint32)
-
-    def _create_text_quad(self):
-        """Cria o quad para o texto centralizado no botão."""
-        x, y = self.position
-        width, height = self.size
-        # Centralizar texto no botão (usando coordenadas de tela)
-        text_x = x + (width - self.text_width) // 2
-        text_y = y + (height - self.text_height) // 2
-        # Corrigir: alinhar topo do texto
-        gl_x = (text_x / self.window_size[0]) * 2 - 1
-        gl_y = 1 - ((text_y + self.text_height) / self.window_size[1]) * 2
-        gl_width = (self.text_width / self.window_size[0]) * 2
-        gl_height = (self.text_height / self.window_size[1]) * 2
-        self.text_vertices = np.array([
-            gl_x, gl_y, 0.0,          0.0, 0.0,
-            gl_x + gl_width, gl_y, 0.0,      1.0, 0.0,
-            gl_x + gl_width, gl_y + gl_height, 0.0, 1.0, 1.0,
-            gl_x, gl_y + gl_height, 0.0,      0.0, 1.0
-        ], dtype=np.float32)
-        self.text_indices = np.array([
-            0, 1, 2, 2, 3, 0
-        ], dtype=np.uint32)
-
-    def _update(self, delta_time):
-        pass
+    def handle_mouse_event(self, event):
+        """Processa eventos do mouse para o botão de menu."""
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mouse_x, mouse_y = event.pos
+            if self._check_hover(mouse_x, mouse_y):
+                self.is_clicked = True
+                if self.callback:
+                    self.callback()
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self.is_clicked = False
+        elif event.type == pygame.MOUSEMOTION:
+            mouse_x, mouse_y = event.pos
+            self.is_hovered = self._check_hover(mouse_x, mouse_y)
 
     def _render(self, renderer):
+        """Renderiza o botão com efeitos de hover."""
         if self.button_renderer is None or self.text_renderer is None or self.shader_manager is None or not self.shader_ok:
             return
-        prev_viewport = glGetIntegerv(GL_VIEWPORT)
-        prev_blend = glIsEnabled(GL_BLEND)
-        prev_depth_test = glIsEnabled(GL_DEPTH_TEST)
-        glViewport(0, 0, self.window_size[0], self.window_size[1])
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glDisable(GL_DEPTH_TEST)
-        # Matriz de projeção ortográfica - usar identidade já que coordenadas já estão em OpenGL
+            
+        self._setup_gl_state()
+        
+        # Matriz de projeção ortográfica
         ortho = np.array([
             [1, 0, 0, 0],
             [0, 1, 0, 0],
             [0, 0, 1, 0],
             [0, 0, 0, 1]
         ], dtype=np.float32)
+        
         try:
-            # --- Desenhar retângulo do botão (fundo) ---
+            # Render button background
             button_shader = self.shader_manager.get_program("button")
             if button_shader:
                 glUseProgram(button_shader)
-                color = self.hover_color if self.is_hovered else self.bg_color
+                
+                # Escolher cor baseada no hover
+                color = self.hover_color if self.is_hovered else self.off_color
+                
+                # Aplicar matriz de projeção
                 loc_proj = glGetUniformLocation(button_shader, "uProjection")
                 if loc_proj != -1:
                     glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
-                # Atributo de cor (location = 2)
+                
+                # Desenhar botão com cor
                 glVertexAttrib4f(2, color[0]/255.0, color[1]/255.0, color[2]/255.0, 0.85)
                 self.button_renderer.render_quad(self.vao_name, button_shader)
-            # --- Desenhar texto por cima ---
+            
+            # Render text
             text_shader = self.shader_manager.get_program("text")
-            if text_shader:
+            if text_shader and self.texture_id:
                 glUseProgram(text_shader)
+                
+                # Setar textura
+                location = glGetUniformLocation(text_shader, "textTexture")
+                if location != -1:
+                    glUniform1i(location, 0)
+                
+                # Aplicar matriz de projeção
                 loc_proj = glGetUniformLocation(text_shader, "uProjection")
                 if loc_proj != -1:
                     glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
-                text_color = self.hover_color if self.is_hovered else self.color
-                glVertexAttrib4f(2, text_color[0]/255.0, text_color[1]/255.0, text_color[2]/255.0, 1.0)
-                glBindTexture(GL_TEXTURE_2D, self.text_texture_id)
-                self.text_renderer.render_quad(self.text_vao_name, text_shader, self.text_texture_id)
-                glBindTexture(GL_TEXTURE_2D, 0)
+                
+                self.text_renderer.render_quad(self.text_vao_name, text_shader, self.texture_id)
+                
         except Exception as e:
-            print(f"[MenuButton] Erro ao renderizar botão: {e}")
+            print(f"[MenuButton] Erro na renderização: {e}")
+        
         finally:
-            glViewport(prev_viewport[0], prev_viewport[1], prev_viewport[2], prev_viewport[3])
-            if prev_blend:
-                glEnable(GL_BLEND)
-            else:
-                glDisable(GL_BLEND)
-            if prev_depth_test:
-                glEnable(GL_DEPTH_TEST)
-            else:
-                glDisable(GL_DEPTH_TEST)
-
-    def handle_mouse_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            mouse_x, mouse_y = event.pos
-            self._check_hover(mouse_x, mouse_y)
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                mouse_x, mouse_y = event.pos
-                if self._check_hover(mouse_x, mouse_y):
-                    self.is_clicked = True
-                    if self.callback:
-                        self.callback()
+            self._restore_gl_state()
 
     def _check_hover(self, mouse_x, mouse_y):
+        """Verifica se o mouse está sobre o botão."""
         x, y = self.position
         width, height = self.size
         # Hover: Pygame usa origem no topo esquerdo
         if (x <= mouse_x <= x + width and y <= mouse_y <= y + height):
-            if not self.is_hovered:
-                self.is_hovered = True
-                self._update_hover_texture()
             return True
         else:
-            if self.is_hovered:
-                self.is_hovered = False
-                self._update_normal_texture()
             return False
 
-    def _update_hover_texture(self):
-        if self._texture_created:
-            pygame.font.init()
-            font_size = min(20, self.size[1] // 2)
-            font = pygame.font.SysFont('Arial', font_size, bold=True)
-            text_surface = font.render(self.text, True, self.hover_color)
-            text_surface = _flip_surface(text_surface)
-            text_data = pygame.image.tostring(text_surface, "RGBA", True)
-            glBindTexture(GL_TEXTURE_2D, self.text_texture_id)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.text_width, self.text_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-            glBindTexture(GL_TEXTURE_2D, 0)
-
-    def _update_normal_texture(self):
-        if self._texture_created:
-            pygame.font.init()
-            font_size = min(20, self.size[1] // 2)
-            font = pygame.font.SysFont('Arial', font_size, bold=True)
-            text_surface = font.render(self.text, True, self.color)
-            text_surface = _flip_surface(text_surface)
-            text_data = pygame.image.tostring(text_surface, "RGBA", True)
-            glBindTexture(GL_TEXTURE_2D, self.text_texture_id)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.text_width, self.text_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-            glBindTexture(GL_TEXTURE_2D, 0)
-
     def _destroy(self):
-        if self.text_texture_id:
-            glDeleteTextures([self.text_texture_id])
-        if self.button_renderer:
-            self.button_renderer.cleanup()
-        if self.text_renderer:
-            self.text_renderer.cleanup() 
+        """Destrói recursos OpenGL."""
+        super()._destroy() 

@@ -5,23 +5,32 @@ Componente LED que exibe o estado de uma entrada como um círculo colorido
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from .base_component import Component
-from ..graphics.renderer import ModernRenderer
-from ..shaders.shader_manager import ShaderManager
+from .base_component import RenderableComponent
+import sys
+import os
+
+# Adicionar o diretório src ao path para imports absolutos
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from graphics.renderer import ModernRenderer
+from shaders.shader_manager import ShaderManager
 
 
-class LEDComponent(Component):
+class LEDComponent(RenderableComponent):
+    """
+    Componente LED que exibe o estado de uma entrada como um círculo colorido.
+    Usado para mostrar o resultado de portas lógicas.
+    """
+    
     def __init__(self, position, radius=20, 
                  off_color=(64, 64, 64), on_color=(0, 255, 0),
                  window_size=(800, 600), shader_manager=None, 
                  input_source=None):
-        super().__init__()
-        self.position = position  # (x, y) em coordenadas de tela
+        super().__init__(window_size, shader_manager)
+        
+        self.position = position
         self.radius = radius
         self.off_color = off_color  # Dark gray when off
         self.on_color = on_color    # Green when on
-        self.window_size = window_size
-        self.shader_manager = shader_manager
         self.input_source = input_source  # Componente que fornece o estado (ex: ANDGate)
         
         print(f"[LEDComponent] Created with off_color: {self.off_color}, on_color: {self.on_color}")
@@ -29,19 +38,15 @@ class LEDComponent(Component):
         # Recursos OpenGL
         self.led_renderer = None
         self.vao_name = f"led_{id(self)}"
-        self.shader_ok = False
         
         # Dados do círculo
         self.circle_vertices = None
         self.circle_indices = None
 
     def _initialize(self):
+        """Inicializa renderer e shaders."""
         # Inicializar renderer
         self.led_renderer = ModernRenderer()
-        
-        # Usar o shader manager fornecido ou criar um novo
-        if self.shader_manager is None:
-            self.shader_manager = ShaderManager()
         
         # Carregar shaders
         try:
@@ -71,21 +76,10 @@ class LEDComponent(Component):
         diameter = self.radius * 2
         
         # Converter coordenadas de tela para OpenGL
-        gl_x = (x / self.window_size[0]) * 2 - 1
-        gl_y = 1 - ((y + diameter) / self.window_size[1]) * 2
-        gl_size = (diameter / self.window_size[0]) * 2
+        gl_x, gl_y, gl_size, _ = self.screen_to_gl_coords(x, y, diameter, diameter)
         
         # Criar um quad quadrado que será renderizado como círculo pelo shader
-        self.circle_vertices = np.array([
-            gl_x, gl_y, 0.0,          0.0, 0.0,  # inferior esquerdo
-            gl_x + gl_size, gl_y, 0.0,      1.0, 0.0,  # inferior direito
-            gl_x + gl_size, gl_y + gl_size, 0.0, 1.0, 1.0,  # superior direito
-            gl_x, gl_y + gl_size, 0.0,      0.0, 1.0   # superior esquerdo
-        ], dtype=np.float32)
-        
-        self.circle_indices = np.array([
-            0, 1, 2, 2, 3, 0
-        ], dtype=np.uint32)
+        self.circle_vertices, self.circle_indices = self.create_quad_vertices(gl_x, gl_y, gl_size, gl_size)
 
     def _update(self, delta_time):
         pass
@@ -94,14 +88,7 @@ class LEDComponent(Component):
         if self.led_renderer is None or self.shader_manager is None or not self.shader_ok:
             return
             
-        prev_viewport = glGetIntegerv(GL_VIEWPORT)
-        prev_blend = glIsEnabled(GL_BLEND)
-        prev_depth_test = glIsEnabled(GL_DEPTH_TEST)
-        
-        glViewport(0, 0, self.window_size[0], self.window_size[1])
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glDisable(GL_DEPTH_TEST)
+        self._setup_gl_state()
         
         # Matriz de projeção ortográfica
         ortho = np.array([
@@ -139,29 +126,20 @@ class LEDComponent(Component):
             print(f"[LEDComponent] Erro na renderização: {e}")
         
         finally:
-            # Restaurar estado OpenGL
-            glViewport(*prev_viewport)
-            if prev_blend:
-                glEnable(GL_BLEND)
-            else:
-                glDisable(GL_BLEND)
-            if prev_depth_test:
-                glEnable(GL_DEPTH_TEST)
-            else:
-                glDisable(GL_DEPTH_TEST)
+            self._restore_gl_state()
 
     def _get_led_state(self):
         """Obtém o estado atual do LED baseado na fonte de entrada."""
         if self.input_source is None:
             return False
         
-        # Se a fonte de entrada tem um método get_result, use-o
-        if hasattr(self.input_source, 'get_result'):
-            return self.input_source.get_result()
-        
-        # Se a fonte de entrada tem um método get_state, use-o
-        elif hasattr(self.input_source, 'get_state'):
+        # Se a fonte de entrada tem um método get_state, use-o primeiro
+        if hasattr(self.input_source, 'get_state'):
             return self.input_source.get_state()
+        
+        # Se a fonte de entrada tem um método get_result, use-o
+        elif hasattr(self.input_source, 'get_result'):
+            return self.input_source.get_result()
         
         # Caso contrário, assuma que está desligado
         return False
@@ -176,4 +154,5 @@ class LEDComponent(Component):
 
     def _destroy(self):
         """Destrói recursos OpenGL."""
-        pass 
+        if self.led_renderer:
+            self.led_renderer.cleanup() 
