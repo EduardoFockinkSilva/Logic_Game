@@ -5,6 +5,7 @@ Level Manager - Handles loading and transitioning between game levels
 import json
 import os
 import glob
+from src.components.factories import create_component_from_data, create_background
 from src.components.background_component import BackgroundComponent
 from src.components.text_component import TextComponent
 from src.components.menu_button import MenuButton
@@ -72,12 +73,26 @@ class LevelManager:
             with open(level_file, 'r') as f:
                 level_data = json.load(f)
             
-            # Load background
+            # Load background using factory
             if "background" in level_data:
-                background = BackgroundComponent(shader_manager=self.game_engine.get_shader_manager())
-                self.game_engine.add_component(background)
+                background_data = level_data["background"]
+                if isinstance(background_data, dict):
+                    # Background with specific configuration
+                    background = create_component_from_data(
+                        background_data, 
+                        self.game_engine.get_shader_manager()
+                    )
+                else:
+                    # Simple background
+                    background = create_background(
+                        'BACKGROUND', 
+                        shader_manager=self.game_engine.get_shader_manager()
+                    )
+                
+                if background:
+                    self.game_engine.add_component(background)
             
-            # Load components
+            # Load components using factory system
             if "components" in level_data:
                 for component_data in level_data["components"]:
                     component = self.create_component(component_data)
@@ -151,112 +166,36 @@ class LevelManager:
                 connection_manager.create_connection_for_components(from_component, to_component)
     
     def create_component(self, component_data):
-        """Create a component from JSON data"""
+        """Create a component from JSON data using the factory system"""
         component_type = component_data.get("type")
         component_id = component_data.get("id", f"{component_type}_{len(self.components_by_id)}")
-        shader_manager = self.game_engine.get_shader_manager()
         
-        component = None
+        # Use factory to create component with callbacks
+        component = create_component_from_data(
+            component_data, 
+            self.game_engine.get_shader_manager(),
+            self.callbacks
+        )
         
-        if component_type == "text":
-            component = TextComponent(
-                text=component_data["text"],
-                font_size=component_data["font_size"],
-                color=tuple(component_data["color"]),
-                position=tuple(component_data["position"]),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager
-            )
-        
-        elif component_type == "menu_button":
-            callback_name = component_data.get("callback")
-            callback = self.callbacks.get(callback_name) if callback_name else None
-            
-            component = MenuButton(
-                text=component_data["text"],
-                position=tuple(component_data["position"]),
-                size=tuple(component_data["size"]),
-                color=tuple(component_data["color"]),
-                hover_color=tuple(component_data["hover_color"]),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager,
-                callback=callback,
-                bg_color=tuple(component_data["bg_color"]),
-                border_color=tuple(component_data["border_color"])
-            )
-        
-        elif component_type == "input_button":
-            component = InputButton(
-                text=component_data["text"],
-                position=tuple(component_data["position"]),
-                size=tuple(component_data.get("size", [100, 60])),
-                off_color=tuple(component_data.get("off_color", [80, 80, 80])),
-                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
-                text_color=tuple(component_data.get("text_color", [255, 255, 255])),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager,
-                initial_state=component_data.get("initial_state", False)
-            )
-            self.input_buttons.append(component)
-        
-        elif component_type == "and_gate":
-            component = ANDGate(
-                position=tuple(component_data["position"]),
-                size=tuple(component_data.get("size", [120, 80])),
-                off_color=tuple(component_data.get("off_color", [80, 80, 80])),
-                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
-                text_color=tuple(component_data.get("text_color", [255, 255, 255])),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager
-            )
-            self.and_gates.append(component)
-        
-        elif component_type == "or_gate":
-            component = ORGate(
-                position=tuple(component_data["position"]),
-                size=tuple(component_data.get("size", [120, 80])),
-                off_color=tuple(component_data.get("off_color", [80, 80, 80])),
-                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
-                text_color=tuple(component_data.get("text_color", [255, 255, 255])),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager
-            )
-            self.or_gates.append(component)
-        
-        elif component_type == "not_gate":
-            component = NOTGate(
-                position=tuple(component_data["position"]),
-                size=tuple(component_data.get("size", [120, 80])),
-                off_color=tuple(component_data.get("off_color", [80, 80, 80])),
-                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
-                text_color=tuple(component_data.get("text_color", [255, 255, 255])),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager
-            )
-            self.not_gates.append(component)
-        
-        elif component_type == "led":
-            component = LEDComponent(
-                position=tuple(component_data["position"]),
-                radius=component_data.get("radius", 20),
-                off_color=tuple(component_data.get("off_color", [64, 64, 64])),
-                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
-                window_size=tuple(component_data["window_size"]),
-                shader_manager=shader_manager
-            )
-            self.leds.append(component)
-        
-        elif component_type == "background":
-            component = BackgroundComponent(shader_manager=shader_manager)
-        
-        else:
-            print(f"Unknown component type: {component_type}")
-            return None
-        
-        # Store component with its ID for connection purposes
         if component:
+            # Store component with ID for connections
             self.components_by_id[component_id] = component
-            print(f"[LevelManager] Created component: {component_id} ({component_type})")
+            
+            # Add to appropriate lists for automatic connections
+            if component_type == "input_button":
+                self.input_buttons.append(component)
+            elif component_type == "and_gate":
+                self.and_gates.append(component)
+            elif component_type == "or_gate":
+                self.or_gates.append(component)
+            elif component_type == "not_gate":
+                self.not_gates.append(component)
+            elif component_type == "led":
+                self.leds.append(component)
+            
+            print(f"[LevelManager] Created {component_type} with ID: {component_id}")
+        else:
+            print(f"[LevelManager] Failed to create component: {component_type}")
         
         return component
     

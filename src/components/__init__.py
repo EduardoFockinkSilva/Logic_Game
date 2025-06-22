@@ -29,10 +29,6 @@ from .background_component import BackgroundComponent
 from .connection_component import ConnectionComponent
 from .connection_manager import ConnectionManager
 
-# Utilitários e fábricas
-from .utils import *
-from .factories import component_registry, register_components, create_logic_gate, create_button
-
 # Debug
 from .debug_hud import DebugHUD
 
@@ -64,10 +60,6 @@ __all__ = [
     'ConnectionComponent',
     'ConnectionManager',
     
-    # Utilitários
-    'component_registry',
-    'register_components',
-    'create_logic_gate',
-    'create_button',
+    # Debug
     'DebugHUD',
 ] 

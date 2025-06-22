@@ -32,61 +32,6 @@ class LogicInputSource(Protocol):
         ...
 
 @runtime_checkable
-class RendererInterface(Protocol):
-    """
-    Protocol para renderizadores de componentes.
-    
-    Define a interface básica que renderizadores devem implementar
-    para serem compatíveis com o sistema de componentes.
-    """
-    def render(self, *args, **kwargs):
-        """
-        Renderiza um componente ou elemento gráfico.
-        
-        Args:
-            *args: Argumentos posicionais para renderização
-            **kwargs: Argumentos nomeados para renderização
-        """
-        ...
-
-@runtime_checkable
-class ComponentState(Protocol):
-    """
-    Protocol para componentes que mantêm estado interno.
-    
-    Implementado por botões e outros componentes que podem ser
-    ligados/desligados ou ter estados internos.
-    
-    Examples:
-        >>> class ToggleButton:
-        ...     def __init__(self):
-        ...         self._state = False
-        ...     def get_state(self) -> bool:
-        ...         return self._state
-        ...     def set_state(self, state: bool) -> None:
-        ...         self._state = state
-        >>> button = ToggleButton()
-        >>> isinstance(button, ComponentState)  # True
-    """
-    def get_state(self) -> bool:
-        """
-        Retorna o estado atual do componente.
-        
-        Returns:
-            True se o componente está ativo/ligado, False caso contrário.
-        """
-        ...
-    
-    def set_state(self, state: bool) -> None:
-        """
-        Define o estado do componente.
-        
-        Args:
-            state: Novo estado (True para ligado, False para desligado)
-        """
-        ...
-
-@runtime_checkable
 class RenderableState(Protocol):
     """
     Protocol para componentes que têm estado renderizável.
