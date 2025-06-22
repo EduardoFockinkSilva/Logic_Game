@@ -49,7 +49,7 @@
     },
     {
       "type": "or_gate",
-      "position": [350, 220],
+      "position": [330, 200],
       "size": [120, 80],
       "off_color": [128, 128, 128],
       "on_color": [255, 192, 203],
@@ -60,7 +60,7 @@
     },
     {
       "type": "not_gate",
-      "position": [350, 340],
+      "position": [330, 320],
       "size": [120, 80],
       "off_color": [128, 128, 128],
       "on_color": [173, 216, 230],
@@ -71,7 +71,7 @@
     },
     {
       "type": "and_gate",
-      "position": [500, 280],
+      "position": [500, 260],
       "size": [120, 80],
       "off_color": [128, 128, 128],
       "on_color": [255, 255, 224],
@@ -82,7 +82,7 @@
     },
     {
       "type": "led",
-      "position": [670, 300],
+      "position": [670, 270],
       "radius": 25,
       "off_color": [64, 64, 64],
       "on_color": [0, 255, 0],
@@ -91,17 +91,8 @@
       "inputs": ["ANDGate"]
     },
     {
-      "type": "text",
-      "text": "Try to light up the LED!",
-      "font_size": 16,
-      "color": [150, 150, 150],
-      "position": [0.5, 0.8],
-      "window_size": [800, 600],
-      "shader_manager": "default"
-    },
-    {
       "type": "menu_button",
-      "text": "Back to Menu",
+      "text": "Menu",
       "position": [25, 525],
       "size": [150, 40],
       "color": [255, 255, 255],
