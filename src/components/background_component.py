@@ -1,5 +1,5 @@
 """
-Componente de background animado usando shaders OpenGL moderno
+Componente de background animado usando shaders OpenGL
 """
 
 import numpy as np
@@ -18,18 +18,10 @@ from graphics.renderer import ModernRenderer
 
 
 class BackgroundComponent(Component):
-    """
-    Componente que renderiza um background animado usando shaders modernos.
-    """
+    """Componente que renderiza background animado usando shaders modernos"""
     
     def __init__(self, entity=None, shader_manager: ShaderManager = None):
-        """
-        Inicializa o componente de background.
-        
-        Args:
-            entity: Entidade pai
-            shader_manager: Gerenciador de shaders
-        """
+        """Inicializa componente de background"""
         super().__init__(entity)
         self.shader_manager = shader_manager
         self.renderer = None
@@ -50,7 +42,7 @@ class BackgroundComponent(Component):
         ], dtype=np.uint32)
     
     def _initialize(self) -> None:
-        """Inicializa o renderizador e carrega o shader."""
+        """Inicializa renderizador e carrega shader"""
         # Inicializar renderer
         self.renderer = ModernRenderer()
         
@@ -58,7 +50,7 @@ class BackgroundComponent(Component):
         if self.shader_manager is None:
             self.shader_manager = ShaderManager()
         
-        # Carregar shader de background apenas se não foi carregado antes
+        # Carregar shader de background
         try:
             if not self.shader_manager.has_program("background"):
                 self.shader_manager.load_shader(
@@ -67,18 +59,18 @@ class BackgroundComponent(Component):
                     "src/shaders/background_fragment.glsl"
                 )
         except FileNotFoundError as e:
-            print(f"[BackgroundComponent] Erro ao carregar shader: {e}")
+            print(f"Erro ao carregar shader: {e}")
             return
         
         # Criar VAO para o background
         self.renderer.create_quad_vao("background", self.vertices, self.indices)
     
     def _update(self, delta_time: float) -> None:
-        """Atualiza o tempo para animação."""
+        """Atualiza tempo para animação"""
         self.time += delta_time
     
     def _render(self, renderer) -> None:
-        """Renderiza o background usando renderizador moderno."""
+        """Renderiza background usando renderizador moderno"""
         if self.renderer is None or self.shader_manager is None:
             return
             
@@ -97,11 +89,11 @@ class BackgroundComponent(Component):
             self.renderer.render_quad("background", shader_program)
             
         except Exception as e:
-            print(f"[BackgroundComponent] Erro ao renderizar background: {e}")
+            print(f"Erro ao renderizar background: {e}")
         finally:
             glUseProgram(0)
     
     def _destroy(self) -> None:
-        """Libera recursos OpenGL."""
+        """Libera recursos OpenGL"""
         if self.renderer:
             self.renderer.cleanup() 

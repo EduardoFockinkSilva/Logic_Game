@@ -1,8 +1,8 @@
 """
-Componentes do jogo de lógica.
+Componentes do jogo de lógica
 
-Este pacote contém todos os componentes visuais e lógicos do jogo,
-incluindo portas lógicas, botões, LEDs, conexões e elementos de interface.
+Pacote contendo todos os componentes visuais e lógicos do jogo:
+portas lógicas, botões, LEDs, conexões e elementos de interface.
 """
 
 # Componentes base

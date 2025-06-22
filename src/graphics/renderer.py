@@ -10,26 +10,16 @@ from typing import Dict, Optional
 
 
 class ModernRenderer:
-    """
-    Renderizador OpenGL moderno que gerencia VAOs, VBOs e shaders.
-    Fornece uma interface unificada para renderização.
-    """
+    """Renderizador OpenGL moderno - gerencia VAOs, VBOs e shaders"""
     
     def __init__(self):
-        """Inicializa o renderizador moderno."""
+        """Inicializa o renderizador"""
         self.vaos: Dict[str, int] = {}
         self.vbos: Dict[str, int] = {}
         self.ebos: Dict[str, int] = {}
     
     def create_quad_vao(self, name: str, vertices: np.ndarray, indices: np.ndarray) -> None:
-        """
-        Cria um VAO para um quad com dados específicos.
-        
-        Args:
-            name: Nome do VAO
-            vertices: Array de vértices (posição + texcoord)
-            indices: Array de índices
-        """
+        """Cria VAO para quad com dados específicos"""
         # Criar VAO
         vao = glGenVertexArrays(1)
         glBindVertexArray(vao)
@@ -45,7 +35,6 @@ class ModernRenderer:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
         
         # Configurar atributos
-        # Assumindo que vertices tem 5 floats por vértice (3 pos + 2 texcoord)
         stride = 5 * 4  # 5 floats * 4 bytes por float
         
         # Posição (atributo 0)
@@ -61,20 +50,10 @@ class ModernRenderer:
         self.vbos[name] = vbo
         self.ebos[name] = ebo
         
-        # Desvincular
         glBindVertexArray(0)
     
     def create_text_vao(self, name: str, width: float, height: float, x: float, y: float) -> None:
-        """
-        Cria um VAO para texto 2D.
-        
-        Args:
-            name: Nome do VAO
-            width: Largura do texto
-            height: Altura do texto
-            x: Posição X
-            y: Posição Y
-        """
+        """Cria VAO para texto 2D"""
         # Dados do quad 2D para texto
         vertices = np.array([
             # posições        # coordenadas de textura
@@ -89,18 +68,10 @@ class ModernRenderer:
         self.create_quad_vao(name, vertices, indices)
     
     def render_quad(self, vao_name: str, shader_program: int, texture_id: Optional[int] = None) -> None:
-        """
-        Renderiza um quad usando VAO.
-        
-        Args:
-            vao_name: Nome do VAO
-            shader_program: ID do programa de shader
-            texture_id: ID da textura (opcional)
-        """
+        """Renderiza quad usando VAO"""
         if vao_name not in self.vaos:
             raise ValueError(f"VAO '{vao_name}' não encontrado")
         
-        # Usar shader
         glUseProgram(shader_program)
         
         # Vincular textura se fornecida
@@ -118,7 +89,7 @@ class ModernRenderer:
             glBindTexture(GL_TEXTURE_2D, 0)
     
     def cleanup(self) -> None:
-        """Limpa todos os recursos OpenGL."""
+        """Limpa todos os recursos OpenGL"""
         for vao in self.vaos.values():
             glDeleteVertexArrays(1, [vao])
         for vbo in self.vbos.values():

@@ -17,10 +17,7 @@ from shaders.shader_manager import ShaderManager
 
 
 class TextComponent(TexturedComponent):
-    """
-    Componente para renderizar texto usando OpenGL moderno.
-    Suporta texto dinâmico com atualização automática de textura.
-    """
+    """Componente para renderizar texto usando OpenGL moderno"""
     
     def __init__(self, text, font_size=48, color=(255,255,255), position=(0.5, 0.05), 
                  window_size=(800,600), shader_manager=None, centered=True):
@@ -36,11 +33,11 @@ class TextComponent(TexturedComponent):
         self._last_text = None  # Para detectar mudanças no texto
 
     def _initialize(self):
-        """Inicializa o renderizador e carrega o shader."""
+        """Inicializa renderizador e carrega shader"""
         # Inicializar renderer
         self.renderer = ModernRenderer()
         
-        # Carregar shader de texto apenas se não foi carregado antes
+        # Carregar shader de texto
         try:
             if not self.shader_manager.has_program("text"):
                 self.shader_manager.load_shader(
@@ -50,7 +47,7 @@ class TextComponent(TexturedComponent):
                 )
             self.shader_ok = True
         except Exception as e:
-            print(f"[TextComponent] Erro ao carregar shader de texto: {e}")
+            print(f"Erro ao carregar shader de texto: {e}")
             self.shader_ok = False
             return
         
@@ -72,14 +69,14 @@ class TextComponent(TexturedComponent):
         self.renderer.create_text_vao(self.vao_name, self.text_width, self.text_height, x, y)
 
     def _create_texture(self):
-        """Cria a textura do texto."""
+        """Cria textura do texto"""
         pygame.font.init()
         font = pygame.font.SysFont('Arial', self.font_size, bold=True)
         text_surface = font.render(self.text, True, self.color)
         self.create_texture_from_surface(text_surface)
 
     def _update_texture_if_needed(self):
-        """Recria a textura se o texto mudou."""
+        """Recria textura se texto mudou"""
         if self.text != self._last_text:
             self._create_texture()
             self._last_text = self.text
@@ -107,7 +104,7 @@ class TextComponent(TexturedComponent):
             self.renderer.create_text_vao(self.vao_name, self.text_width, self.text_height, x, y)
 
     def _update(self, delta_time):
-        """Verifica se o texto mudou e atualiza textura se necessário."""
+        """Verifica se texto mudou e atualiza textura se necessário"""
         self._update_texture_if_needed()
 
     def _render(self, renderer):
@@ -143,12 +140,12 @@ class TextComponent(TexturedComponent):
                 
                 self.renderer.render_quad(self.vao_name, shader_program, self.texture_id)
         except Exception as e:
-            print(f"[TextComponent] Erro ao renderizar texto: {e}")
+            print(f"Erro ao renderizar texto: {e}")
         finally:
             self._restore_gl_state()
 
     def _destroy(self):
-        """Libera recursos OpenGL."""
+        """Libera recursos OpenGL"""
         super()._destroy()
         if self.renderer:
             self.renderer.cleanup() 

@@ -1,5 +1,5 @@
 """
-Componente LED que exibe o estado de uma entrada como um círculo colorido
+Componente LED que exibe estado de entrada como círculo colorido
 """
 
 import numpy as np
@@ -18,10 +18,7 @@ from shaders.shader_manager import ShaderManager
 
 
 class LEDComponent(RenderableComponent, RenderableState):
-    """
-    Componente LED que exibe o estado de uma entrada como um círculo colorido.
-    Usado para mostrar o resultado de portas lógicas.
-    """
+    """Componente LED - exibe estado de entrada como círculo colorido"""
     
     def __init__(self, position, radius=20, 
                  off_color=(64, 64, 64), on_color=(0, 255, 0),
@@ -33,9 +30,9 @@ class LEDComponent(RenderableComponent, RenderableState):
         self.radius = radius
         self.off_color = off_color  # Dark gray when off
         self.on_color = on_color    # Green when on
-        self.input_source: LogicInputSource = input_source  # Componente que fornece o estado (ex: ANDGate)
+        self.input_source: LogicInputSource = input_source  # Componente que fornece o estado
         
-        print(f"[LEDComponent] Created with off_color: {self.off_color}, on_color: {self.on_color}")
+        print(f"LED criado com off_color: {self.off_color}, on_color: {self.on_color}")
         
         # Recursos OpenGL
         self.led_renderer = None
@@ -46,7 +43,7 @@ class LEDComponent(RenderableComponent, RenderableState):
         self.circle_indices = None
 
     def _initialize(self):
-        """Inicializa renderer e shaders."""
+        """Inicializa renderer e shaders"""
         # Inicializar renderer
         self.led_renderer = ModernRenderer()
         
@@ -61,7 +58,7 @@ class LEDComponent(RenderableComponent, RenderableState):
                 )
             self.shader_ok = True
         except Exception as e:
-            print(f"[LEDComponent] Erro ao carregar shaders: {e}")
+            print(f"Erro ao carregar shaders: {e}")
             self.shader_ok = False
             return
         
@@ -73,7 +70,7 @@ class LEDComponent(RenderableComponent, RenderableState):
             self.led_renderer.create_quad_vao(self.vao_name, self.circle_vertices, self.circle_indices)
 
     def _create_circle_quad(self):
-        """Cria os dados do quad circular para o LED."""
+        """Cria dados do quad circular para o LED"""
         x, y = self.position
         diameter = self.radius * 2
         
@@ -101,7 +98,7 @@ class LEDComponent(RenderableComponent, RenderableState):
         ], dtype=np.float32)
         
         try:
-            # Render LED using LED shader
+            # Renderizar LED usando shader LED
             led_shader = self.shader_manager.get_program("led")
             if led_shader:
                 glUseProgram(led_shader)
@@ -122,13 +119,13 @@ class LEDComponent(RenderableComponent, RenderableState):
                 self.led_renderer.render_quad(self.vao_name, led_shader)
                 
         except Exception as e:
-            print(f"[LEDComponent] Erro na renderização: {e}")
+            print(f"Erro na renderização: {e}")
         
         finally:
             self._restore_gl_state()
 
     def _get_led_state(self):
-        """Obtém o estado atual do LED baseado na fonte de entrada."""
+        """Obtém estado atual do LED baseado na fonte de entrada"""
         if self.input_source is None:
             return False
         
@@ -144,30 +141,27 @@ class LEDComponent(RenderableComponent, RenderableState):
         return False
 
     def set_input_source(self, source: LogicInputSource):
-        """Define a fonte de entrada para o LED."""
+        """Define fonte de entrada para o LED"""
         self.input_source = source
 
     def get_state(self):
-        """Retorna o estado atual do LED."""
+        """Retorna estado atual do LED"""
         return self._get_led_state()
 
     def get_render_color(self) -> Tuple[int, int, int]:
-        """
-        Retorna a cor atual para renderização baseada no estado do LED.
-        Separa a lógica de estado da renderização.
-        """
+        """Retorna cor atual para renderização baseada no estado do LED"""
         is_on = self._get_led_state()
         return self.on_color if is_on else self.off_color
     
     def get_position(self) -> Tuple[int, int]:
-        """Retorna a posição do LED."""
+        """Retorna posição do LED"""
         return self.position
     
     def get_size(self) -> Tuple[int, int]:
-        """Retorna o tamanho do LED (diâmetro)."""
+        """Retorna tamanho do LED (diâmetro)"""
         return (self.radius * 2, self.radius * 2)
 
     def _destroy(self):
-        """Destrói recursos OpenGL."""
+        """Destrói recursos OpenGL"""
         if self.led_renderer:
             self.led_renderer.cleanup() 

@@ -1,5 +1,5 @@
 """
-Componente para renderizar botões de menu clicáveis
+Botões de menu clicáveis
 """
 
 import pygame
@@ -9,10 +9,7 @@ from src.components.button_base import ButtonBase
 
 
 class MenuButton(ButtonBase):
-    """
-    Botão de menu retangular com efeitos de hover.
-    Usado para navegação e ações do menu.
-    """
+    """Botão de menu retangular com efeitos de hover"""
     
     def __init__(self, text, position, size=(200, 50), color=(100, 150, 255), 
                  hover_color=(150, 200, 255), window_size=(800, 600), 
@@ -33,7 +30,7 @@ class MenuButton(ButtonBase):
         self.border_color = border_color
 
     def handle_mouse_event(self, event):
-        """Processa eventos do mouse para o botão de menu."""
+        """Processa eventos do mouse para botão de menu"""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_x, mouse_y = event.pos
             if self._check_hover(mouse_x, mouse_y):
@@ -47,7 +44,7 @@ class MenuButton(ButtonBase):
             self.is_hovered = self._check_hover(mouse_x, mouse_y)
 
     def _render(self, renderer):
-        """Renderiza o botão com efeitos de hover."""
+        """Renderiza botão com efeitos de hover"""
         if self.button_renderer is None or self.text_renderer is None or self.shader_manager is None or not self.shader_ok:
             return
             
@@ -62,7 +59,7 @@ class MenuButton(ButtonBase):
         ], dtype=np.float32)
         
         try:
-            # Render button background
+            # Renderizar fundo do botão
             button_shader = self.shader_manager.get_program("button")
             if button_shader:
                 glUseProgram(button_shader)
@@ -79,7 +76,7 @@ class MenuButton(ButtonBase):
                 glVertexAttrib4f(2, color[0]/255.0, color[1]/255.0, color[2]/255.0, 0.85)
                 self.button_renderer.render_quad(self.vao_name, button_shader)
             
-            # Render text
+            # Renderizar texto
             text_shader = self.shader_manager.get_program("text")
             if text_shader and self.texture_id:
                 glUseProgram(text_shader)
@@ -97,13 +94,13 @@ class MenuButton(ButtonBase):
                 self.text_renderer.render_quad(self.text_vao_name, text_shader, self.texture_id)
                 
         except Exception as e:
-            print(f"[MenuButton] Erro na renderização: {e}")
+            print(f"Erro na renderização: {e}")
         
         finally:
             self._restore_gl_state()
 
     def _check_hover(self, mouse_x, mouse_y):
-        """Verifica se o mouse está sobre o botão."""
+        """Verifica se mouse está sobre o botão"""
         x, y = self.position
         width, height = self.size
         # Hover: Pygame usa origem no topo esquerdo
@@ -113,5 +110,5 @@ class MenuButton(ButtonBase):
             return False
 
     def _destroy(self):
-        """Destrói recursos OpenGL."""
+        """Destrói recursos OpenGL"""
         super()._destroy() 

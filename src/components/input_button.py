@@ -1,5 +1,5 @@
 """
-Componente para botões de entrada que podem ser alternados on/off
+Botão de entrada alternável on/off
 """
 
 import pygame
@@ -7,10 +7,7 @@ from src.components.button_base import ButtonBase
 
 
 class InputButton(ButtonBase):
-    """
-    Botão de entrada que pode ser alternado entre on/off.
-    Usado como entrada para portas lógicas.
-    """
+    """Botão de entrada alternável - usado como entrada para portas lógicas"""
     
     def __init__(self, text, position, size=(80, 80), 
                  off_color=(255, 0, 0), on_color=(0, 255, 0),
@@ -30,7 +27,7 @@ class InputButton(ButtonBase):
         )
 
     def handle_mouse_event(self, event):
-        """Processa eventos do mouse para alternar o estado do botão."""
+        """Processa eventos do mouse para alternar estado"""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_x, mouse_y = event.pos
             if self._check_hover(mouse_x, mouse_y):
@@ -47,7 +44,5 @@ class InputButton(ButtonBase):
         return False
 
     def get_result(self) -> bool:
-        """
-        Retorna o estado lógico do botão para uso como fonte lógica.
-        """
+        """Retorna estado lógico do botão"""
         return self.state 

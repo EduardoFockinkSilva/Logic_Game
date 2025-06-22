@@ -1,7 +1,7 @@
 """
-Interfaces e Protocols para o sistema de componentes.
+Interfaces e Protocols para o sistema de componentes
 
-Este módulo define as interfaces principais que os componentes devem implementar,
+Define as interfaces principais que os componentes devem implementar,
 garantindo consistência e facilitando a extensibilidade do sistema.
 """
 
@@ -14,13 +14,6 @@ class LogicInputSource(Protocol):
     
     Implementado por portas lógicas e outros componentes que podem ser
     usados como fonte de entrada para LEDs e outras portas lógicas.
-    
-    Examples:
-        >>> class ANDGate:
-        ...     def get_result(self) -> bool:
-        ...         return True
-        >>> gate = ANDGate()
-        >>> isinstance(gate, LogicInputSource)  # True
     """
     def get_result(self) -> bool:
         """
@@ -39,21 +32,6 @@ class RenderableState(Protocol):
     Combina funcionalidades de estado com informações de renderização,
     permitindo que componentes forneçam dados para renderização baseados
     em seu estado atual.
-    
-    Examples:
-        >>> class LED:
-        ...     def __init__(self, on_color=(0,255,0), off_color=(64,64,64)):
-        ...         self.on_color = on_color
-        ...         self.off_color = off_color
-        ...         self._state = False
-        ...     def get_render_color(self) -> Tuple[int, int, int]:
-        ...         return self.on_color if self._state else self.off_color
-        ...     def get_position(self) -> Tuple[int, int]:
-        ...         return (100, 100)
-        ...     def get_size(self) -> Tuple[int, int]:
-        ...         return (40, 40)
-        >>> led = LED()
-        >>> isinstance(led, RenderableState)  # True
     """
     def get_render_color(self) -> Tuple[int, int, int]:
         """

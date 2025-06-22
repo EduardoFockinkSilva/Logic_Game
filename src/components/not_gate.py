@@ -1,14 +1,12 @@
 """
-Componente para porta lógica NOT com feedback visual
+Porta lógica NOT com feedback visual
 """
 
 from src.components.logic_gate import LogicGate
 
 
 class NOTGate(LogicGate):
-    """
-    Porta lógica NOT que inverte o valor da entrada.
-    """
+    """Porta lógica NOT - inverte o valor da entrada"""
     
     def __init__(self, position, size=(120, 80), off_color=(128, 128, 128), on_color=(173, 216, 230), **kwargs):
         super().__init__(position=position, size=size, off_color=off_color, on_color=on_color)

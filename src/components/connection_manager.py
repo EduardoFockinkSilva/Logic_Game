@@ -1,9 +1,9 @@
 """
-Gerenciador de conexões visuais entre componentes lógicos.
+Gerenciador de conexões visuais entre componentes lógicos
 
-Este módulo implementa um sistema que automaticamente detecta e cria
-conexões visuais entre componentes, gerenciando sua renderização e
-atualização baseada no estado dos sinais.
+Implementa sistema que automaticamente detecta e cria conexões visuais
+entre componentes, gerenciando renderização e atualização baseada
+no estado dos sinais.
 """
 
 from typing import Dict, List, Tuple, Optional
@@ -13,57 +13,30 @@ from src.components.base_component import Component
 
 
 class ConnectionManager:
-    """
-    Gerenciador de conexões visuais entre componentes.
-    
-    Detecta automaticamente conexões entre componentes e cria
-    representações visuais que mudam de cor baseado no estado
-    do sinal sendo transmitido.
-    
-    Attributes:
-        connections: Lista de todas as conexões ativas
-        component_connections: Mapeamento de componentes para suas conexões
-        connection_points: Pontos de conexão de cada componente
-    """
+    """Gerenciador de conexões visuais entre componentes"""
     
     def __init__(self, window_size: Tuple[int, int] = (800, 600), shader_manager=None):
-        """
-        Inicializa o gerenciador de conexões.
-        
-        Args:
-            window_size: Tamanho da janela
-            shader_manager: Gerenciador de shaders
-        """
+        """Inicializa gerenciador de conexões"""
         self.connections: List[ConnectionComponent] = []
         self.component_connections: Dict[Component, List[ConnectionComponent]] = {}
         self.connection_points: Dict[Component, Dict[str, Tuple[int, int]]] = {}
         self.window_size = window_size
         self.shader_manager = shader_manager
         
-        print("[ConnectionManager] Initialized")
+        print("ConnectionManager inicializado")
     
     def add_component(self, component: Component):
-        """
-        Adiciona um componente ao gerenciador de conexões.
-        
-        Args:
-            component: Componente a ser adicionado
-        """
+        """Adiciona componente ao gerenciador de conexões"""
         # Definir pontos de conexão baseado no tipo de componente
         self._define_connection_points(component)
         
         # Não criar conexões automáticas - apenas quando explicitamente solicitado
         # self._check_for_connections(component)
         
-        print(f"[ConnectionManager] Added component: {component.__class__.__name__}")
+        print(f"Adicionado componente: {component.__class__.__name__}")
     
     def remove_component(self, component: Component):
-        """
-        Remove um componente e suas conexões.
-        
-        Args:
-            component: Componente a ser removido
-        """
+        """Remove componente e suas conexões"""
         if component in self.component_connections:
             # Remover todas as conexões do componente
             for connection in self.component_connections[component]:
@@ -76,15 +49,10 @@ class ConnectionManager:
         if component in self.connection_points:
             del self.connection_points[component]
         
-        print(f"[ConnectionManager] Removed component: {component.__class__.__name__}")
+        print(f"Removido componente: {component.__class__.__name__}")
     
     def _define_connection_points(self, component: Component):
-        """
-        Define os pontos de conexão de um componente.
-        
-        Args:
-            component: Componente para definir pontos de conexão
-        """
+        """Define pontos de conexão de um componente"""
         position = component.get_position()
         size = component.get_size()
         
@@ -125,13 +93,7 @@ class ConnectionManager:
             }
     
     def create_connection_for_components(self, source: Component, target: Component):
-        """
-        Cria uma conexão visual entre dois componentes específicos.
-        
-        Args:
-            source: Componente fonte do sinal
-            target: Componente destino do sinal
-        """
+        """Cria conexão visual entre dois componentes específicos"""
         # Verificar se ambos os componentes estão registrados
         if source not in self.connection_points or target not in self.connection_points:
             return
@@ -151,12 +113,7 @@ class ConnectionManager:
             self._create_connection_if_compatible(source, target)
     
     def _check_for_connections(self, new_component: Component):
-        """
-        Verifica se o novo componente deve se conectar a outros existentes.
-        
-        Args:
-            new_component: Componente recém-adicionado
-        """
+        """Verifica se novo componente deve se conectar a outros existentes"""
         new_points = self.connection_points.get(new_component, {})
         
         # Verificar todos os componentes existentes
@@ -168,13 +125,7 @@ class ConnectionManager:
             self._create_connection_if_compatible(new_component, existing_component)
     
     def _create_connection_if_compatible(self, comp1: Component, comp2: Component):
-        """
-        Cria conexão entre dois componentes se forem compatíveis.
-        
-        Args:
-            comp1: Primeiro componente
-            comp2: Segundo componente
-        """
+        """Cria conexão entre dois componentes se forem compatíveis"""
         points1 = self.connection_points.get(comp1, {})
         points2 = self.connection_points.get(comp2, {})
         
@@ -187,15 +138,7 @@ class ConnectionManager:
     
     def _create_connection(self, source: Component, target: Component, 
                           source_point: Tuple[int, int], target_points: Dict[str, Tuple[int, int]]):
-        """
-        Cria uma conexão entre dois componentes.
-        
-        Args:
-            source: Componente fonte do sinal
-            target: Componente destino do sinal
-            source_point: Ponto de saída da fonte
-            target_points: Pontos de entrada do destino
-        """
+        """Cria conexão entre dois componentes"""
         # Encontrar ponto de entrada disponível
         target_point = None
         for key, point in target_points.items():
@@ -234,34 +177,22 @@ class ConnectionManager:
         self.component_connections[source].append(connection)
         self.component_connections[target].append(connection)
         
-        print(f"[ConnectionManager] Created connection: {source.__class__.__name__} -> {target.__class__.__name__}")
+        print(f"Criada conexão: {source.__class__.__name__} -> {target.__class__.__name__}")
     
     def update(self, delta_time: float):
-        """
-        Atualiza todas as conexões.
-        
-        Args:
-            delta_time: Tempo desde o último frame
-        """
+        """Atualiza todas as conexões"""
         for connection in self.connections:
             if connection.enabled:
                 connection.update(delta_time)
     
     def render(self, renderer):
-        """
-        Renderiza todas as conexões.
-        
-        Args:
-            renderer: Renderizador OpenGL
-        """
+        """Renderiza todas as conexões"""
         for connection in self.connections:
             if connection.visible:
                 connection.render(renderer)
     
     def clear_all_connections(self):
-        """
-        Remove todas as conexões.
-        """
+        """Remove todas as conexões"""
         for connection in self.connections:
             connection.destroy()
         
@@ -269,36 +200,18 @@ class ConnectionManager:
         self.component_connections.clear()
         self.connection_points.clear()
         
-        print("[ConnectionManager] Cleared all connections")
+        print("Todas as conexões removidas")
     
     def get_connection_count(self) -> int:
-        """
-        Retorna o número total de conexões.
-        
-        Returns:
-            Número de conexões ativas
-        """
+        """Retorna número total de conexões"""
         return len(self.connections)
     
     def get_component_connections(self, component: Component) -> List[ConnectionComponent]:
-        """
-        Retorna todas as conexões de um componente específico.
-        
-        Args:
-            component: Componente para buscar conexões
-            
-        Returns:
-            Lista de conexões do componente
-        """
+        """Retorna todas as conexões de um componente específico"""
         return self.component_connections.get(component, [])
     
     def update_component_position(self, component: Component):
-        """
-        Atualiza as posições das conexões quando um componente se move.
-        
-        Args:
-            component: Componente que foi movido
-        """
+        """Atualiza posições das conexões quando componente se move"""
         if component not in self.connection_points:
             return
         

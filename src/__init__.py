@@ -1,3 +1,3 @@
 """
-Pacote principal do jogo de Puzzle Lógico
+Pacote principal do Puzzle Lógico
 """ 

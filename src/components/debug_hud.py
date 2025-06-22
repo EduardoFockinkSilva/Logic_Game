@@ -1,5 +1,5 @@
 """
-Componente HUD de debug para mostrar informações úteis durante o desenvolvimento
+HUD de debug para informações de desenvolvimento
 """
 
 import pygame
@@ -8,20 +8,10 @@ from src.components.text_component import TextComponent
 
 
 class DebugHUD(Component):
-    """
-    HUD de debug que mostra informações úteis como posição do mouse,
-    FPS, e outras informações de desenvolvimento.
-    """
+    """HUD de debug - mostra posição do mouse, FPS e outras informações"""
     
     def __init__(self, window_size=(800, 600), enabled=True, shader_manager=None):
-        """
-        Inicializa o HUD de debug.
-        
-        Args:
-            window_size: Tamanho da janela (largura, altura)
-            enabled: Se o HUD está habilitado
-            shader_manager: Gerenciador de shaders para os componentes de texto
-        """
+        """Inicializa HUD de debug"""
         super().__init__()
         self.window_size = window_size
         self.enabled = enabled
@@ -43,7 +33,7 @@ class DebugHUD(Component):
         self.update_interval = 0.1  # Atualizar FPS a cada 100ms
     
     def _initialize(self):
-        """Inicializa os componentes de texto do HUD."""
+        """Inicializa componentes de texto do HUD"""
         # Componente para posição do mouse
         self.mouse_pos_text = TextComponent(
             text="Mouse: (0, 0)",
@@ -71,7 +61,7 @@ class DebugHUD(Component):
         self.fps_text.initialize()
     
     def _update(self, delta_time):
-        """Atualiza as informações de debug."""
+        """Atualiza informações de debug"""
         if not self.enabled:
             return
         
@@ -103,7 +93,7 @@ class DebugHUD(Component):
             self.fps_text.update(delta_time)
     
     def _render(self, renderer):
-        """Renderiza o HUD de debug."""
+        """Renderiza HUD de debug"""
         if not self.enabled:
             return
         
@@ -114,24 +104,24 @@ class DebugHUD(Component):
             self.fps_text.render(renderer)
     
     def _destroy(self):
-        """Destrói os componentes do HUD."""
+        """Destrói componentes do HUD"""
         if self.mouse_pos_text:
             self.mouse_pos_text.destroy()
         if self.fps_text:
             self.fps_text.destroy()
     
     def toggle(self):
-        """Alterna a visibilidade do HUD."""
+        """Alterna visibilidade do HUD"""
         self.enabled = not self.enabled
     
     def set_enabled(self, enabled: bool):
-        """Define se o HUD está habilitado."""
+        """Define se HUD está habilitado"""
         self.enabled = enabled
     
     def get_mouse_position(self):
-        """Retorna a posição atual do mouse."""
+        """Retorna posição atual do mouse"""
         return self.mouse_pos
     
     def get_fps(self):
-        """Retorna o FPS atual."""
+        """Retorna FPS atual"""
         return self.fps 

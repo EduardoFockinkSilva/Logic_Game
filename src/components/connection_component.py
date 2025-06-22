@@ -1,9 +1,9 @@
 """
-Componente para renderizar conexões visuais entre componentes lógicos.
+Componente para renderizar conexões visuais entre componentes lógicos
 
-Este módulo implementa um sistema de conexões que desenha linhas entre
-componentes e muda de cor baseado no estado do sinal que está sendo
-transmitido através da conexão.
+Implementa sistema de conexões que desenha linhas entre componentes
+e muda de cor baseado no estado do sinal que está sendo transmitido
+através da conexão.
 """
 
 import numpy as np
@@ -22,21 +22,7 @@ from src.shaders.shader_manager import ShaderManager
 
 
 class ConnectionComponent(RenderableComponent, RenderableState):
-    """
-    Componente que renderiza conexões visuais entre componentes lógicos.
-    
-    Desenha linhas que conectam pontos de entrada e saída de componentes,
-    mudando de cor baseado no estado do sinal que está sendo transmitido.
-    
-    Attributes:
-        start_point: Ponto inicial da conexão (x, y)
-        end_point: Ponto final da conexão (x, y)
-        signal_source: Fonte do sinal (LogicInputSource)
-        off_color: Cor quando não há sinal (R, G, B)
-        on_color: Cor quando há sinal (R, G, B)
-        line_width: Espessura da linha
-        connection_type: Tipo de conexão ('straight', 'curved', 'stepped')
-    """
+    """Componente que renderiza conexões visuais entre componentes lógicos"""
     
     def __init__(self, start_point: Tuple[int, int], end_point: Tuple[int, int],
                  signal_source: Optional[LogicInputSource] = None,
@@ -46,20 +32,7 @@ class ConnectionComponent(RenderableComponent, RenderableState):
                  connection_type: str = 'straight',
                  window_size: Tuple[int, int] = (800, 600),
                  shader_manager=None):
-        """
-        Inicializa uma nova conexão.
-        
-        Args:
-            start_point: Ponto inicial (x, y) da conexão
-            end_point: Ponto final (x, y) da conexão
-            signal_source: Fonte do sinal (opcional)
-            off_color: Cor quando não há sinal
-            on_color: Cor quando há sinal
-            line_width: Espessura da linha em pixels
-            connection_type: Tipo de conexão ('straight', 'curved', 'stepped')
-            window_size: Tamanho da janela
-            shader_manager: Gerenciador de shaders
-        """
+        """Inicializa nova conexão"""
         super().__init__(window_size, shader_manager)
         
         self.start_point = start_point
@@ -82,12 +55,10 @@ class ConnectionComponent(RenderableComponent, RenderableState):
         self.visible = True
         self.enabled = True
         
-        print(f"[ConnectionComponent] Created from {start_point} to {end_point}")
+        print(f"Conexão criada de {start_point} para {end_point}")
     
     def _initialize(self):
-        """
-        Inicializa renderer e shaders para conexões.
-        """
+        """Inicializa renderer e shaders para conexões"""
         # Inicializar renderer
         self.connection_renderer = ModernRenderer()
         
@@ -102,7 +73,7 @@ class ConnectionComponent(RenderableComponent, RenderableState):
                 )
             self.shader_ok = True
         except Exception as e:
-            print(f"[ConnectionComponent] Erro ao carregar shaders: {e}")
+            print(f"Erro ao carregar shaders: {e}")
             self.shader_ok = False
             return
         
@@ -114,9 +85,7 @@ class ConnectionComponent(RenderableComponent, RenderableState):
             self.connection_renderer.create_quad_vao(self.vao_name, self.line_vertices, self.line_indices)
     
     def _create_line_geometry(self):
-        """
-        Cria geometria da linha baseada no tipo de conexão.
-        """
+        """Cria geometria da linha baseada no tipo de conexão"""
         if self.connection_type == 'straight':
             self._create_straight_line()
         elif self.connection_type == 'stepped':
@@ -127,9 +96,7 @@ class ConnectionComponent(RenderableComponent, RenderableState):
             self._create_straight_line()  # Fallback
     
     def _create_straight_line(self):
-        """
-        Cria geometria para linha reta.
-        """
+        """Cria geometria para linha reta"""
         # Converter pontos para coordenadas OpenGL
         start_gl = self._screen_to_gl_point(self.start_point)
         end_gl = self._screen_to_gl_point(self.end_point)
@@ -165,51 +132,29 @@ class ConnectionComponent(RenderableComponent, RenderableState):
         self.line_indices = np.array([0, 1, 2, 2, 3, 0], dtype=np.uint32)
     
     def _create_stepped_line(self):
-        """
-        Cria geometria para linha em degraus (para conexões ortogonais).
-        """
+        """Cria geometria para linha em degraus (para conexões ortogonais)"""
         # Implementação simplificada - linha reta por enquanto
         self._create_straight_line()
     
     def _create_curved_line(self):
-        """
-        Cria geometria para linha curva (para conexões suaves).
-        """
+        """Cria geometria para linha curva (para conexões suaves)"""
         # Implementação simplificada - linha reta por enquanto
         self._create_straight_line()
     
     def _screen_to_gl_point(self, point: Tuple[int, int]) -> Tuple[float, float]:
-        """
-        Converte ponto de tela para coordenadas OpenGL.
-        
-        Args:
-            point: Ponto em coordenadas de tela (x, y)
-            
-        Returns:
-            Ponto em coordenadas OpenGL (x, y)
-        """
+        """Converte ponto de tela para coordenadas OpenGL"""
         gl_x = (point[0] / self.window_size[0]) * 2 - 1
         gl_y = 1 - (point[1] / self.window_size[1]) * 2
         return (gl_x, gl_y)
     
     def _update(self, delta_time: float):
-        """
-        Atualização específica da conexão.
-        
-        Args:
-            delta_time: Tempo desde o último frame em segundos
-        """
+        """Atualização específica da conexão"""
         # A conexão não precisa de atualização específica
         # O estado é determinado pela fonte do sinal
         pass
     
     def _render(self, renderer):
-        """
-        Renderização específica da conexão.
-        
-        Args:
-            renderer: Renderizador OpenGL
-        """
+        """Renderização específica da conexão"""
         if self.connection_renderer is None or self.shader_manager is None or not self.shader_ok:
             return
         
@@ -224,7 +169,7 @@ class ConnectionComponent(RenderableComponent, RenderableState):
         ], dtype=np.float32)
         
         try:
-            # Render connection using connection shader
+            # Renderizar conexão usando shader connection
             connection_shader = self.shader_manager.get_program("connection")
             if connection_shader:
                 glUseProgram(connection_shader)
@@ -242,18 +187,13 @@ class ConnectionComponent(RenderableComponent, RenderableState):
                 self.connection_renderer.render_quad(self.vao_name, connection_shader)
                 
         except Exception as e:
-            print(f"[ConnectionComponent] Erro na renderização: {e}")
+            print(f"Erro na renderização: {e}")
         
         finally:
             self._restore_gl_state()
     
     def get_render_color(self) -> Tuple[int, int, int]:
-        """
-        Retorna a cor atual para renderização baseada no estado do sinal.
-        
-        Returns:
-            Cor atual (R, G, B) baseada no estado do sinal
-        """
+        """Retorna cor atual para renderização baseada no estado do sinal"""
         if self.signal_source is None:
             return self.off_color
         
@@ -267,44 +207,23 @@ class ConnectionComponent(RenderableComponent, RenderableState):
         return self.on_color if has_signal else self.off_color
     
     def get_position(self) -> Tuple[int, int]:
-        """
-        Retorna a posição central da conexão.
-        
-        Returns:
-            Posição central (x, y) da conexão
-        """
+        """Retorna posição central da conexão"""
         center_x = (self.start_point[0] + self.end_point[0]) // 2
         center_y = (self.start_point[1] + self.end_point[1]) // 2
         return (center_x, center_y)
     
     def get_size(self) -> Tuple[int, int]:
-        """
-        Retorna o tamanho da conexão.
-        
-        Returns:
-            Tamanho (largura, altura) da conexão
-        """
+        """Retorna tamanho da conexão"""
         width = abs(self.end_point[0] - self.start_point[0])
         height = abs(self.end_point[1] - self.start_point[1])
         return (width, height)
     
     def set_signal_source(self, source: LogicInputSource):
-        """
-        Define a fonte do sinal para a conexão.
-        
-        Args:
-            source: Fonte do sinal (LogicInputSource)
-        """
+        """Define fonte do sinal para a conexão"""
         self.signal_source = source
     
     def update_points(self, start_point: Tuple[int, int], end_point: Tuple[int, int]):
-        """
-        Atualiza os pontos de início e fim da conexão.
-        
-        Args:
-            start_point: Novo ponto inicial (x, y)
-            end_point: Novo ponto final (x, y)
-        """
+        """Atualiza pontos de início e fim da conexão"""
         self.start_point = start_point
         self.end_point = end_point
         
@@ -315,8 +234,6 @@ class ConnectionComponent(RenderableComponent, RenderableState):
                 self.connection_renderer.create_quad_vao(self.vao_name, self.line_vertices, self.line_indices)
     
     def _destroy(self):
-        """
-        Destrói recursos OpenGL da conexão.
-        """
+        """Destrói recursos OpenGL da conexão"""
         if hasattr(self, 'connection_renderer') and self.connection_renderer:
             self.connection_renderer.cleanup() 

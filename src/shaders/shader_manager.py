@@ -9,28 +9,15 @@ from OpenGL.GLU import *
 
 
 class ShaderManager:
-    """
-    Gerenciador de shaders OpenGL.
-    Carrega, compila e gerencia shaders para o jogo.
-    """
+    """Gerenciador de shaders OpenGL - carrega, compila e gerencia shaders"""
     
     def __init__(self):
-        """Inicializa o gerenciador de shaders."""
+        """Inicializa o gerenciador de shaders"""
         self.shaders: Dict[str, int] = {}
         self.programs: Dict[str, int] = {}
     
     def load_shader(self, name: str, vertex_path: str, fragment_path: str) -> int:
-        """
-        Carrega e compila um programa de shader.
-        
-        Args:
-            name: Nome do shader
-            vertex_path: Caminho para o vertex shader
-            fragment_path: Caminho para o fragment shader
-            
-        Returns:
-            ID do programa de shader compilado
-        """
+        """Carrega e compila programa de shader"""
         # Verificar se já foi carregado
         if name in self.programs:
             program_id = self.programs[name]
@@ -65,27 +52,11 @@ class ShaderManager:
         return program
     
     def has_program(self, name: str) -> bool:
-        """
-        Verifica se um programa de shader existe.
-        
-        Args:
-            name: Nome do programa
-            
-        Returns:
-            True se o programa existe, False caso contrário
-        """
+        """Verifica se programa de shader existe"""
         return name in self.programs
     
     def _read_shader_file(self, filepath: str) -> str:
-        """
-        Lê o conteúdo de um arquivo de shader.
-        
-        Args:
-            filepath: Caminho para o arquivo
-            
-        Returns:
-            Conteúdo do arquivo como string
-        """
+        """Lê conteúdo de arquivo de shader"""
         try:
             with open(filepath, 'r', encoding='utf-8') as file:
                 return file.read()
@@ -93,16 +64,7 @@ class ShaderManager:
             raise FileNotFoundError(f"Arquivo de shader não encontrado: {filepath}")
     
     def _compile_shader(self, shader_type: int, source: str) -> int:
-        """
-        Compila um shader individual.
-        
-        Args:
-            shader_type: Tipo do shader (GL_VERTEX_SHADER ou GL_FRAGMENT_SHADER)
-            source: Código fonte do shader
-            
-        Returns:
-            ID do shader compilado
-        """
+        """Compila shader individual"""
         shader = glCreateShader(shader_type)
         glShaderSource(shader, source)
         glCompileShader(shader)
@@ -115,12 +77,7 @@ class ShaderManager:
         return shader
     
     def use_program(self, name: str) -> None:
-        """
-        Ativa um programa de shader.
-        
-        Args:
-            name: Nome do programa de shader
-        """
+        """Ativa programa de shader"""
         if name in self.programs:
             program_id = self.programs[name]
             if program_id is not None:
@@ -131,19 +88,11 @@ class ShaderManager:
             raise ValueError(f"Programa de shader '{name}' não encontrado")
     
     def get_program(self, name: str) -> Optional[int]:
-        """
-        Obtém o ID de um programa de shader.
-        
-        Args:
-            name: Nome do programa
-            
-        Returns:
-            ID do programa ou None se não encontrado
-        """
+        """Obtém ID de programa de shader"""
         return self.programs.get(name)
     
     def set_uniform_1f(self, name: str, value: float) -> None:
-        """Define um uniform float."""
+        """Define uniform float"""
         current_program = glGetInteger(GL_CURRENT_PROGRAM)
         if current_program is not None:
             location = glGetUniformLocation(current_program, name)
@@ -151,7 +100,7 @@ class ShaderManager:
                 glUniform1f(location, value)
     
     def set_uniform_2f(self, name: str, x: float, y: float) -> None:
-        """Define um uniform vec2."""
+        """Define uniform vec2"""
         current_program = glGetInteger(GL_CURRENT_PROGRAM)
         if current_program is not None:
             location = glGetUniformLocation(current_program, name)
@@ -159,7 +108,7 @@ class ShaderManager:
                 glUniform2f(location, x, y)
     
     def set_uniform_3f(self, name: str, x: float, y: float, z: float) -> None:
-        """Define um uniform vec3."""
+        """Define uniform vec3"""
         current_program = glGetInteger(GL_CURRENT_PROGRAM)
         if current_program is not None:
             location = glGetUniformLocation(current_program, name)
@@ -167,7 +116,7 @@ class ShaderManager:
                 glUniform3f(location, x, y, z)
     
     def set_uniform_4f(self, name: str, x: float, y: float, z: float, w: float) -> None:
-        """Define um uniform vec4."""
+        """Define uniform vec4"""
         current_program = glGetInteger(GL_CURRENT_PROGRAM)
         if current_program is not None:
             location = glGetUniformLocation(current_program, name)
@@ -175,7 +124,7 @@ class ShaderManager:
                 glUniform4f(location, x, y, z, w)
     
     def cleanup(self) -> None:
-        """Limpa todos os shaders e programas."""
+        """Limpa todos os shaders e programas"""
         for program in self.programs.values():
             if program is not None:
                 glDeleteProgram(program)

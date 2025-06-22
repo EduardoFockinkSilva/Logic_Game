@@ -19,10 +19,7 @@ from shaders.shader_manager import ShaderManager
 
 
 class ButtonBase(TexturedComponent, RenderableState):
-    """
-    Classe base para botões (InputButton, MenuButton).
-    Elimina duplicação de código entre diferentes tipos de botões.
-    """
+    """Classe base para botões - elimina duplicação de código"""
     
     def __init__(self, text: str, position: Tuple[int, int], size: Tuple[int, int] = (80, 80),
                  off_color: Tuple[int, int, int] = (255, 0, 0), on_color: Tuple[int, int, int] = (0, 255, 0),
@@ -58,7 +55,7 @@ class ButtonBase(TexturedComponent, RenderableState):
         self.text_indices = None
 
     def _initialize(self):
-        """Inicializa renderers e shaders."""
+        """Inicializa renderers e shaders"""
         # Inicializar renderers
         self.button_renderer = ModernRenderer()
         self.text_renderer = ModernRenderer()
@@ -87,7 +84,7 @@ class ButtonBase(TexturedComponent, RenderableState):
                 )
             self.shader_ok = True
         except Exception as e:
-            print(f"[ButtonBase] Erro ao carregar shaders: {e}")
+            print(f"Erro ao carregar shaders: {e}")
             self.shader_ok = False
             return
         
@@ -107,7 +104,7 @@ class ButtonBase(TexturedComponent, RenderableState):
             self.text_renderer.create_quad_vao(self.text_vao_name, self.text_vertices, self.text_indices)
 
     def _create_text_texture(self):
-        """Cria a textura do texto do botão."""
+        """Cria textura do texto do botão"""
         pygame.font.init()
         font_size = min(14, self.size[1] // 4)
         font = pygame.font.SysFont('Arial', font_size, bold=True)
@@ -115,14 +112,14 @@ class ButtonBase(TexturedComponent, RenderableState):
         self.create_texture_from_surface(text_surface)
 
     def _create_button_quad(self):
-        """Cria os dados do quad do botão."""
+        """Cria dados do quad do botão"""
         gl_x, gl_y, gl_width, gl_height = self.screen_to_gl_coords(
             self.position[0], self.position[1], self.size[0], self.size[1]
         )
         self.button_vertices, self.button_indices = self.create_quad_vertices(gl_x, gl_y, gl_width, gl_height)
 
     def _create_text_quad(self):
-        """Cria o quad para o texto centralizado no botão."""
+        """Cria quad para texto centralizado no botão"""
         # Centralizar texto no botão
         text_x = self.position[0] + (self.size[0] - self.text_width) // 2
         text_y = self.position[1] + (self.size[1] - self.text_height) // 2
@@ -150,13 +147,13 @@ class ButtonBase(TexturedComponent, RenderableState):
         ], dtype=np.float32)
         
         try:
-            # Render button
+            # Renderizar botão
             shader_name = "circle" if self.button_type == "circle" else "button"
             button_shader = self.shader_manager.get_program(shader_name)
             if button_shader:
                 glUseProgram(button_shader)
                 
-                # Obter cor de renderização (separado da lógica de estado)
+                # Obter cor de renderização
                 color = self.get_render_color()
                 
                 # Aplicar matriz de projeção
@@ -168,7 +165,7 @@ class ButtonBase(TexturedComponent, RenderableState):
                 glVertexAttrib4f(2, color[0]/255.0, color[1]/255.0, color[2]/255.0, 1.0)
                 self.button_renderer.render_quad(self.vao_name, button_shader)
             
-            # Render text
+            # Renderizar texto
             text_shader = self.shader_manager.get_program("text")
             if text_shader and self.texture_id:
                 glUseProgram(text_shader)
@@ -186,46 +183,43 @@ class ButtonBase(TexturedComponent, RenderableState):
                 self.text_renderer.render_quad(self.text_vao_name, text_shader, self.texture_id)
                 
         except Exception as e:
-            print(f"[ButtonBase] Erro na renderização: {e}")
+            print(f"Erro na renderização: {e}")
         
         finally:
             self._restore_gl_state()
 
     def handle_mouse_event(self, event):
-        """Processa eventos do mouse. Deve ser implementado pelas subclasses."""
+        """Processa eventos do mouse - deve ser implementado pelas subclasses"""
         pass
 
     def _check_hover(self, mouse_x: int, mouse_y: int) -> bool:
-        """Verifica se o mouse está sobre o botão."""
+        """Verifica se mouse está sobre o botão"""
         x, y = self.position
         width, height = self.size
         return (x <= mouse_x <= x + width and y <= mouse_y <= y + height)
 
     def get_state(self) -> bool:
-        """Retorna o estado atual do botão."""
+        """Retorna estado atual do botão"""
         return self.state
 
     def set_state(self, state: bool):
-        """Define o estado do botão."""
+        """Define estado do botão"""
         self.state = state
 
     def get_render_color(self) -> Tuple[int, int, int]:
-        """
-        Retorna a cor atual para renderização baseada no estado do botão.
-        Separa a lógica de estado da renderização.
-        """
+        """Retorna cor atual para renderização baseada no estado do botão"""
         return self.on_color if self.state else self.off_color
     
     def get_position(self) -> Tuple[int, int]:
-        """Retorna a posição do botão."""
+        """Retorna posição do botão"""
         return self.position
     
     def get_size(self) -> Tuple[int, int]:
-        """Retorna o tamanho do botão."""
+        """Retorna tamanho do botão"""
         return self.size
 
     def _destroy(self):
-        """Destrói recursos OpenGL."""
+        """Destrói recursos OpenGL"""
         super()._destroy()
         if self.button_renderer:
             self.button_renderer.cleanup()

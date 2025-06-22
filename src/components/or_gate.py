@@ -1,14 +1,12 @@
 """
-Componente para porta lógica OR com feedback visual
+Porta lógica OR com feedback visual
 """
 
 from src.components.logic_gate import LogicGate
 
 
 class ORGate(LogicGate):
-    """
-    Porta lógica OR que retorna True quando pelo menos uma entrada é True.
-    """
+    """Porta lógica OR - retorna True quando pelo menos uma entrada é True"""
     
     def __init__(self, position, size=(120, 80), off_color=(128, 128, 128), on_color=(255, 192, 203), **kwargs):
         super().__init__(position=position, size=size, off_color=off_color, on_color=on_color)
