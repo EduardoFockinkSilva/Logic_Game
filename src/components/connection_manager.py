@@ -95,7 +95,14 @@ class ConnectionManager:
         width, height = size
         
         # Definir pontos de conexão baseado no tipo de componente
-        if hasattr(component, 'get_result'):  # Portas lógicas
+        if hasattr(component, 'set_input_source'):  # LEDs - verificar primeiro
+            # Para LEDs, adicionar ponto de entrada (lado esquerdo)
+            self.connection_points[component] = {
+                'input_0': (x, y + height // 2)
+            }
+            # LEDs não têm saída, apenas entrada
+            
+        elif hasattr(component, 'get_result'):  # Portas lógicas
             # Ponto de saída (lado direito)
             self.connection_points[component] = {
                 'output': (x + width, y + height // 2)
@@ -116,12 +123,6 @@ class ConnectionManager:
             self.connection_points[component] = {
                 'output': (x + width, y + height // 2)
             }
-        
-        # Para LEDs, adicionar ponto de entrada
-        elif hasattr(component, 'set_input_source'):  # LEDs
-            self.connection_points[component] = {
-                'input_0': (x, y + height // 2)
-            }
     
     def create_connection_for_components(self, source: Component, target: Component):
         """
@@ -140,9 +141,14 @@ class ConnectionManager:
         
         # Verificar se há pontos compatíveis para conexão
         if 'output' in source_points and any(key.startswith('input_') for key in target_points.keys()):
+            # Source tem saída, target tem entrada - conexão direta
             self._create_connection(source, target, source_points['output'], target_points)
         elif 'output' in target_points and any(key.startswith('input_') for key in source_points.keys()):
+            # Target tem saída, source tem entrada - conexão invertida
             self._create_connection(target, source, target_points['output'], source_points)
+        else:
+            # Tentar criar conexão baseada na proximidade
+            self._create_connection_if_compatible(source, target)
     
     def _check_for_connections(self, new_component: Component):
         """
