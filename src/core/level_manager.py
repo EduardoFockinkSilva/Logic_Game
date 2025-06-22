@@ -4,11 +4,14 @@ Level Manager - Handles loading and transitioning between game levels
 
 import json
 import os
+import glob
 from src.components.background_component import BackgroundComponent
 from src.components.text_component import TextComponent
 from src.components.menu_button import MenuButton
 from src.components.input_button import InputButton
 from src.components.and_gate import ANDGate
+from src.components.or_gate import ORGate
+from src.components.not_gate import NOTGate
 from src.components.led_component import LEDComponent
 
 
@@ -30,11 +33,20 @@ class LevelManager:
         # Store components for reference
         self.input_buttons = []
         self.and_gates = []
+        self.or_gates = []
+        self.not_gates = []
         self.leds = []
         
-        # Level progression
-        self.level_sequence = ["game_level", "level2"]
+        # Level progression - automatically detect all levels except menu.json
+        self.level_sequence = self._discover_levels()
         self.current_level_index = 0
+    
+    def _discover_levels(self):
+        """Automatically discover all level files except menu.json, sorted by filename."""
+        level_files = glob.glob(os.path.join(self.levels_dir, '*.json'))
+        level_names = [os.path.splitext(os.path.basename(f))[0] for f in level_files if os.path.basename(f) != 'menu.json']
+        # Sort by filename (you can customize this if you want a different order)
+        return sorted(level_names)
     
     def load_level(self, level_name):
         """Load a level from JSON file"""
@@ -137,6 +149,32 @@ class LevelManager:
             self.and_gates.append(gate)
             return gate
         
+        elif component_type == "or_gate":
+            gate = ORGate(
+                position=tuple(component_data["position"]),
+                size=tuple(component_data.get("size", [120, 80])),
+                off_color=tuple(component_data.get("off_color", [80, 80, 80])),
+                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
+                text_color=tuple(component_data.get("text_color", [255, 255, 255])),
+                window_size=tuple(component_data["window_size"]),
+                shader_manager=shader_manager
+            )
+            self.or_gates.append(gate)
+            return gate
+        
+        elif component_type == "not_gate":
+            gate = NOTGate(
+                position=tuple(component_data["position"]),
+                size=tuple(component_data.get("size", [120, 80])),
+                off_color=tuple(component_data.get("off_color", [80, 80, 80])),
+                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
+                text_color=tuple(component_data.get("text_color", [255, 255, 255])),
+                window_size=tuple(component_data["window_size"]),
+                shader_manager=shader_manager
+            )
+            self.not_gates.append(gate)
+            return gate
+        
         elif component_type == "led":
             led = LEDComponent(
                 position=tuple(component_data["position"]),
@@ -157,46 +195,50 @@ class LevelManager:
             return None
     
     def _connect_gates_to_inputs(self):
-        """Connect AND gates to their input buttons based on component IDs"""
-        # This method can be extended to handle connections based on component IDs
-        # For now, we'll connect all input buttons to the first AND gate
-        if self.and_gates and self.input_buttons:
-            for gate in self.and_gates:
+        """Connect all gates to their input buttons based on component IDs"""
+        # Connect all input buttons to all gates (for now, simple approach)
+        all_gates = self.and_gates + self.or_gates + self.not_gates
+        if all_gates and self.input_buttons:
+            for gate in all_gates:
                 for button in self.input_buttons:
                     gate.add_input_button(button)
     
     def _connect_leds_to_inputs(self):
         """Connect LEDs to their input sources based on component IDs"""
-        # For now, connect all LEDs to the first AND gate
-        if self.leds and self.and_gates:
+        # Connect all LEDs to the first available gate
+        all_gates = self.and_gates + self.or_gates + self.not_gates
+        if self.leds and all_gates:
             for led in self.leds:
-                led.set_input_source(self.and_gates[0])
+                led.set_input_source(all_gates[0])
     
     def clear_current_level(self):
         """Clear all components from current level"""
         self.game_engine.clear_components()
         self.input_buttons.clear()
         self.and_gates.clear()
+        self.or_gates.clear()
+        self.not_gates.clear()
         self.leds.clear()
     
     def check_level_completion(self):
-        """Check if the current level is completed"""
-        if self.current_level == "game_level":
-            # Level 1 is completed when the AND gate output is ON (both inputs are ON)
-            if self.and_gates and self.and_gates[0].get_result():
-                return True
-        elif self.current_level == "level2":
-            # Level 2 is completed when the AND gate output is ON (both inputs are ON)
-            if self.and_gates and self.and_gates[0].get_result():
-                return True
+        """Check if the current level is completed (generic: any LED ON, or any gate ON)."""
+        # Prefer LED if present
+        if self.leds:
+            for led in self.leds:
+                if hasattr(led, 'get_state') and led.get_state():
+                    return True
+        # Otherwise, check any gate
+        for gate_list in [getattr(self, attr, []) for attr in ['and_gates', 'or_gates', 'not_gates']]:
+            for gate in gate_list:
+                if hasattr(gate, 'get_result') and gate.get_result():
+                    return True
         return False
     
     def add_completion_button(self):
-        """Add completion button when level is completed"""
+        """Add completion button when level is completed (dynamic for all levels)."""
         if self.check_level_completion():
-            # Add completion button
-            if self.current_level == "game_level":
-                # Add "Next Level" button for level 1
+            # If not last level, show Next Level; else, show Finish
+            if self.current_level_index < len(self.level_sequence) - 1:
                 next_button = MenuButton(
                     text="Next Level",
                     position=(300, 400),
@@ -210,11 +252,9 @@ class LevelManager:
                     border_color=(100, 180, 100)
                 )
                 self.game_engine.add_component(next_button)
-                
-            elif self.current_level == "level2":
-                # Add "Back to Menu" button for final level
-                menu_button = MenuButton(
-                    text="Back to Menu",
+            else:
+                finish_button = MenuButton(
+                    text="Finish",
                     position=(300, 400),
                     size=(200, 50),
                     color=(255, 255, 255),
@@ -225,7 +265,7 @@ class LevelManager:
                     bg_color=(60, 60, 120),
                     border_color=(100, 100, 180)
                 )
-                self.game_engine.add_component(menu_button)
+                self.game_engine.add_component(finish_button)
     
     # Callback methods
     def start_game(self):
