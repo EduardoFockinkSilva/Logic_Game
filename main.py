@@ -7,6 +7,7 @@ Main entry point - Arquitetura Modular com Sistema de Níveis
 from src.core.game_engine import GameEngine
 from src.core.level_manager import LevelManager
 from src.components.core.factories import component_registry
+from config import WindowConfig, GameplayConfig
 
 
 def main():
@@ -21,11 +22,11 @@ def main():
     print(f"  - Textos: {component_registry.list_texts()}")
     print(f"  - Backgrounds: {component_registry.list_backgrounds()}")
     
-    # Criar motor do jogo
+    # Criar motor do jogo usando configurações centralizadas
     engine = GameEngine(
-        width=800,
-        height=600,
-        title="Puzzle Lógico - CG Game"
+        width=WindowConfig.DEFAULT_WIDTH,
+        height=WindowConfig.DEFAULT_HEIGHT,
+        title=WindowConfig.DEFAULT_TITLE
     )
     
     # Criar gerenciador de níveis
@@ -34,8 +35,8 @@ def main():
     # Conectar level manager ao engine
     engine.set_level_manager(level_manager)
     
-    # Carregar o menu inicial
-    level_manager.load_level("menu")
+    # Carregar o menu inicial usando configuração centralizada
+    level_manager.load_level(GameplayConfig.START_LEVEL)
     
     # Executar o jogo
     engine.run()
