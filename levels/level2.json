@@ -7,19 +7,10 @@
   "components": [
     {
       "type": "text",
-      "text": "Level 2 - Advanced Logic",
+      "text": "Level 2 - OR AND NOT",
       "font_size": 36,
       "color": [255, 255, 255],
       "position": [0.5, 0.1],
-      "window_size": [800, 600],
-      "shader_manager": "default"
-    },
-    {
-      "type": "text",
-      "text": "LED lights up if (Input 1 OR Input 2) AND (NOT Input 2)",
-      "font_size": 20,
-      "color": [200, 200, 200],
-      "position": [0.5, 0.18],
       "window_size": [800, 600],
       "shader_manager": "default"
     },
@@ -85,25 +76,25 @@
     {
       "id": "led_1",
       "type": "led",
-      "position": [670, 270],
-      "radius": 25,
-      "off_color": [64, 64, 64],
-      "on_color": [0, 255, 0],
+      "position": [650, 270],
+      "radius": 30,
+      "off_color": [40, 40, 40],
+      "on_color": [0, 255, 100],
       "window_size": [800, 600],
       "shader_manager": "default"
     },
     {
       "type": "menu_button",
       "text": "Menu",
-      "position": [25, 525],
-      "size": [150, 40],
+      "position": [20, 530],
+      "size": [100, 45],
       "color": [255, 255, 255],
-      "hover_color": [200, 200, 255],
+      "hover_color": [220, 220, 255],
       "window_size": [800, 600],
       "shader_manager": "default",
       "callback": "back_to_menu",
-      "bg_color": [80, 80, 120],
-      "border_color": [120, 120, 180]
+      "bg_color": [70, 70, 100],
+      "border_color": [120, 120, 160]
     }
   ],
   "connections": [

@@ -7,7 +7,7 @@
   "components": [
     {
       "type": "text",
-      "text": "Level 1 - Learn how an AND gate works!",
+      "text": "Level 1 - How AND works!",
       "font_size": 42,
       "color": [255, 255, 255],
       "position": [0.5, 0.08],
@@ -74,7 +74,7 @@
       "type": "menu_button",
       "text": "Menu",
       "position": [20, 530],
-      "size": [160, 45],
+      "size": [100, 45],
       "color": [255, 255, 255],
       "hover_color": [220, 220, 255],
       "window_size": [800, 600],

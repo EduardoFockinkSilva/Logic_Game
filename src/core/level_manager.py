@@ -200,8 +200,8 @@ class LevelManager:
             if self.current_level_index < len(self.level_sequence) - 1:
                 next_button = MenuButton(
                     text="Next Level",
-                    position=(575, 525),
-                    size=(200, 50),
+                    position=(675, 525),
+                    size=(100, 45),
                     color=(255, 255, 255),
                     hover_color=(200, 255, 200),
                     window_size=(800, 600),
@@ -214,8 +214,8 @@ class LevelManager:
             else:
                 finish_button = MenuButton(
                     text="Finish",
-                    position=(575, 525),
-                    size=(200, 50),
+                    position=(675, 525),
+                    size=(100, 45),
                     color=(255, 255, 255),
                     hover_color=(200, 200, 255),
                     window_size=(800, 600),
