@@ -6,7 +6,7 @@ Main entry point - Arquitetura Modular com Sistema de Níveis
 
 from src.core.game_engine import GameEngine
 from src.core.level_manager import LevelManager
-from src.components.factories import component_registry
+from src.components.core.factories import component_registry
 
 
 def main():

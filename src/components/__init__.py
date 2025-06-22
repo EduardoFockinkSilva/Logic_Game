@@ -6,31 +6,31 @@ portas lógicas, botões, LEDs, conexões e elementos de interface.
 """
 
 # Componentes base
-from .base_component import Component, RenderableComponent, TexturedComponent
-from .interfaces import LogicInputSource, RenderableState
+from .core.base_component import Component, RenderableComponent, TexturedComponent
+from .core.interfaces import LogicInputSource, RenderableState
 
 # Portas lógicas
-from .logic_gate import LogicGate
-from .and_gate import ANDGate
-from .or_gate import ORGate
-from .not_gate import NOTGate
+from .logic.logic_gate import LogicGate
+from .logic.and_gate import ANDGate
+from .logic.or_gate import ORGate
+from .logic.not_gate import NOTGate
 
 # Botões
-from .button_base import ButtonBase
-from .input_button import InputButton
-from .menu_button import MenuButton
+from .ui.button_base import ButtonBase
+from .logic.input_button import InputButton
+from .ui.menu_button import MenuButton
 
 # Componentes visuais
-from .led_component import LEDComponent
-from .text_component import TextComponent
-from .background_component import BackgroundComponent
+from .logic.led_component import LEDComponent
+from .ui.text_component import TextComponent
+from .ui.background_component import BackgroundComponent
 
 # Sistema de conexões
-from .connection_component import ConnectionComponent
-from .connection_manager import ConnectionManager
+from .ui.connection_component import ConnectionComponent
+from .core.connection_manager import ConnectionManager
 
 # Debug
-from .debug_hud import DebugHUD
+from .ui.debug_hud import DebugHUD
 
 __all__ = [
     # Componentes base

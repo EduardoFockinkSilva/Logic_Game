@@ -3,7 +3,7 @@ Botão de entrada alternável on/off
 """
 
 import pygame
-from src.components.button_base import ButtonBase
+from src.components.ui.button_base import ButtonBase
 
 
 class InputButton(ButtonBase):

@@ -10,10 +10,10 @@ import pygame
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from .base_component import TexturedComponent
+from src.components.core.base_component import TexturedComponent
 import sys
 import os
-from .interfaces import LogicInputSource, RenderableState
+from src.components.core.interfaces import LogicInputSource, RenderableState
 from typing import List, Callable, Optional, Tuple
 from src.graphics.renderer import ModernRenderer
 from src.shaders.shader_manager import ShaderManager

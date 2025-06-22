@@ -9,9 +9,9 @@ from OpenGL.GLU import *
 from typing import List, Dict, Any, Optional
 import time
 
-from ..components.base_component import Component
-from ..components.debug_hud import DebugHUD
-from ..components.connection_manager import ConnectionManager
+from src.components.core.base_component import Component
+from src.components.ui.debug_hud import DebugHUD
+from src.components.core.connection_manager import ConnectionManager
 from ..shaders.shader_manager import ShaderManager
 
 

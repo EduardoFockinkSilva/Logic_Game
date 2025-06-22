@@ -5,8 +5,8 @@ Gerenciador de níveis - carrega e transiciona entre níveis
 import json
 import os
 import glob
-from src.components.factories import create_component_from_data, create_background
-from src.components.menu_button import MenuButton
+from src.components.core.factories import create_component_from_data, create_background
+from src.components.ui.menu_button import MenuButton
 
 
 class LevelManager:

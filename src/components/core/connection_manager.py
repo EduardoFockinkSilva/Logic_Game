@@ -7,9 +7,9 @@ no estado dos sinais.
 """
 
 from typing import Dict, List, Tuple, Optional
-from src.components.connection_component import ConnectionComponent
-from src.components.interfaces import LogicInputSource, RenderableState
-from src.components.base_component import Component
+from src.components.ui.connection_component import ConnectionComponent
+from src.components.core.interfaces import LogicInputSource, RenderableState
+from src.components.core.base_component import Component
 
 
 class ConnectionManager:

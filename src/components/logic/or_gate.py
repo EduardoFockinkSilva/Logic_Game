@@ -2,7 +2,7 @@
 Porta lógica OR com feedback visual
 """
 
-from src.components.logic_gate import LogicGate
+from .logic_gate import LogicGate
 
 
 class ORGate(LogicGate):

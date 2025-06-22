@@ -6,16 +6,16 @@ import pygame
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from src.components.base_component import TexturedComponent
+from src.components.core.base_component import TexturedComponent
 import sys
 import os
-from src.components.interfaces import RenderableState
+from src.components.core.interfaces import RenderableState
 from typing import Optional, Callable, Tuple
 
 # Adicionar o diretório src ao path para imports absolutos
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from graphics.renderer import ModernRenderer
-from shaders.shader_manager import ShaderManager
+from src.graphics.renderer import ModernRenderer
+from src.shaders.shader_manager import ShaderManager
 
 
 class ButtonBase(TexturedComponent, RenderableState):

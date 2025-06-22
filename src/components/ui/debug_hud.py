@@ -3,8 +3,8 @@ HUD de debug para informações de desenvolvimento
 """
 
 import pygame
-from src.components.base_component import Component
-from src.components.text_component import TextComponent
+from src.components.core.base_component import Component
+from src.components.ui.text_component import TextComponent
 
 
 class DebugHUD(Component):

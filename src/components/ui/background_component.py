@@ -7,14 +7,14 @@ import ctypes
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from src.components.base_component import Component
+from src.components.core.base_component import Component
 import sys
 import os
 
 # Adicionar o diretório src ao path para imports absolutos
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from shaders.shader_manager import ShaderManager
-from graphics.renderer import ModernRenderer
+from src.shaders.shader_manager import ShaderManager
+from src.graphics.renderer import ModernRenderer
 
 
 class BackgroundComponent(Component):

@@ -2,7 +2,7 @@
 Porta lógica NOT com feedback visual
 """
 
-from src.components.logic_gate import LogicGate
+from .logic_gate import LogicGate
 
 
 class NOTGate(LogicGate):

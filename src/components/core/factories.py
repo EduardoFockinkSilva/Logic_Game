@@ -19,10 +19,10 @@ Examples:
 """
 
 from typing import Dict, Type, Any, Optional, Tuple
-from src.components.interfaces import LogicInputSource
-from src.components.logic_gate import LogicGate
-from src.components.button_base import ButtonBase
-from src.components.base_component import Component
+from src.components.core.interfaces import LogicInputSource
+from src.components.logic.logic_gate import LogicGate
+from src.components.ui.button_base import ButtonBase
+from src.components.core.base_component import Component
 
 
 class ComponentRegistry:
@@ -134,18 +134,18 @@ component_registry = ComponentRegistry()
 def register_components():
     """Registra todos os componentes disponíveis no registry"""
     # Importar classes das portas lógicas
-    from src.components.and_gate import ANDGate
-    from src.components.or_gate import ORGate
-    from src.components.not_gate import NOTGate
+    from src.components.logic.and_gate import ANDGate
+    from src.components.logic.or_gate import ORGate
+    from src.components.logic.not_gate import NOTGate
     
     # Importar classes dos botões
-    from src.components.input_button import InputButton
-    from src.components.menu_button import MenuButton
+    from src.components.logic.input_button import InputButton
+    from src.components.ui.menu_button import MenuButton
     
     # Importar classes de outros componentes
-    from src.components.led_component import LEDComponent
-    from src.components.text_component import TextComponent
-    from src.components.background_component import BackgroundComponent
+    from src.components.logic.led_component import LEDComponent
+    from src.components.ui.text_component import TextComponent
+    from src.components.ui.background_component import BackgroundComponent
     
     # Registrar portas lógicas
     component_registry.register_logic_gate('AND', ANDGate)

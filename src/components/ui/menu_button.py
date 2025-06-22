@@ -5,7 +5,7 @@ Botões de menu clicáveis
 import pygame
 import numpy as np
 from OpenGL.GL import *
-from src.components.button_base import ButtonBase
+from src.components.ui.button_base import ButtonBase
 
 
 class MenuButton(ButtonBase):

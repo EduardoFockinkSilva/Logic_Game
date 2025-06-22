@@ -9,8 +9,8 @@ através da conexão.
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from src.components.base_component import RenderableComponent
-from src.components.interfaces import LogicInputSource, RenderableState
+from src.components.core.base_component import RenderableComponent
+from src.components.core.interfaces import LogicInputSource, RenderableState
 from typing import Tuple, Optional
 import sys
 import os
