@@ -3,7 +3,7 @@ Componente para botões de entrada que podem ser alternados on/off
 """
 
 import pygame
-from .button_base import ButtonBase
+from src.components.button_base import ButtonBase
 
 
 class InputButton(ButtonBase):
@@ -44,4 +44,10 @@ class InputButton(ButtonBase):
         elif event.type == pygame.MOUSEMOTION:
             mouse_x, mouse_y = event.pos
             self.is_hovered = self._check_hover(mouse_x, mouse_y)
-        return False 
+        return False
+
+    def get_result(self) -> bool:
+        """
+        Retorna o estado lógico do botão para uso como fonte lógica.
+        """
+        return self.state 

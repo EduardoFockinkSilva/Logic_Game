@@ -55,6 +55,9 @@ class TestLEDComponent(unittest.TestCase):
         # Mock input source with get_state method
         mock_source = Mock()
         mock_source.get_state.return_value = True
+        # Remove get_result if it exists
+        if hasattr(mock_source, 'get_result'):
+            delattr(mock_source, 'get_result')
         
         self.led.set_input_source(mock_source)
         self.assertTrue(self.led.get_state())
@@ -67,6 +70,11 @@ class TestLEDComponent(unittest.TestCase):
         """Testa o estado do LED com fonte inválida."""
         # Mock input source without get_result or get_state methods
         mock_source = Mock()
+        # Remove any methods that might exist
+        if hasattr(mock_source, 'get_result'):
+            delattr(mock_source, 'get_result')
+        if hasattr(mock_source, 'get_state'):
+            delattr(mock_source, 'get_state')
         
         self.led.set_input_source(mock_source)
         self.assertFalse(self.led.get_state())
@@ -74,12 +82,13 @@ class TestLEDComponent(unittest.TestCase):
     def test_led_color_selection(self):
         """Testa a seleção de cor baseada no estado."""
         # Test off state
-        self.led.input_source = Mock()
-        self.led.input_source.get_result.return_value = False
+        mock_source = Mock()
+        mock_source.get_result.return_value = False
+        self.led.set_input_source(mock_source)
         self.assertFalse(self.led.get_state())
         
         # Test on state
-        self.led.input_source.get_result.return_value = True
+        mock_source.get_result.return_value = True
         self.assertTrue(self.led.get_state())
 
 

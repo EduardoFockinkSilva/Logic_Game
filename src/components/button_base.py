@@ -6,18 +6,19 @@ import pygame
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from .base_component import TexturedComponent
+from src.components.base_component import TexturedComponent
 import sys
 import os
+from src.components.interfaces import RenderableState
+from typing import Optional, Callable, Tuple
 
 # Adicionar o diretório src ao path para imports absolutos
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from graphics.renderer import ModernRenderer
 from shaders.shader_manager import ShaderManager
-from typing import Optional, Callable, Tuple
 
 
-class ButtonBase(TexturedComponent):
+class ButtonBase(TexturedComponent, RenderableState):
     """
     Classe base para botões (InputButton, MenuButton).
     Elimina duplicação de código entre diferentes tipos de botões.
@@ -155,11 +156,8 @@ class ButtonBase(TexturedComponent):
             if button_shader:
                 glUseProgram(button_shader)
                 
-                # Escolher cor baseada no estado
-                if self.state:
-                    color = self.on_color
-                else:
-                    color = self.off_color
+                # Obter cor de renderização (separado da lógica de estado)
+                color = self.get_render_color()
                 
                 # Aplicar matriz de projeção
                 loc_proj = glGetUniformLocation(button_shader, "uProjection")
@@ -210,6 +208,21 @@ class ButtonBase(TexturedComponent):
     def set_state(self, state: bool):
         """Define o estado do botão."""
         self.state = state
+
+    def get_render_color(self) -> Tuple[int, int, int]:
+        """
+        Retorna a cor atual para renderização baseada no estado do botão.
+        Separa a lógica de estado da renderização.
+        """
+        return self.on_color if self.state else self.off_color
+    
+    def get_position(self) -> Tuple[int, int]:
+        """Retorna a posição do botão."""
+        return self.position
+    
+    def get_size(self) -> Tuple[int, int]:
+        """Retorna o tamanho do botão."""
+        return self.size
 
     def _destroy(self):
         """Destrói recursos OpenGL."""

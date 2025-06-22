@@ -5,9 +5,11 @@ Componente LED que exibe o estado de uma entrada como um círculo colorido
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from .base_component import RenderableComponent
+from src.components.base_component import RenderableComponent
 import sys
 import os
+from src.components.interfaces import LogicInputSource, RenderableState
+from typing import Tuple
 
 # Adicionar o diretório src ao path para imports absolutos
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -15,7 +17,7 @@ from graphics.renderer import ModernRenderer
 from shaders.shader_manager import ShaderManager
 
 
-class LEDComponent(RenderableComponent):
+class LEDComponent(RenderableComponent, RenderableState):
     """
     Componente LED que exibe o estado de uma entrada como um círculo colorido.
     Usado para mostrar o resultado de portas lógicas.
@@ -24,14 +26,14 @@ class LEDComponent(RenderableComponent):
     def __init__(self, position, radius=20, 
                  off_color=(64, 64, 64), on_color=(0, 255, 0),
                  window_size=(800, 600), shader_manager=None, 
-                 input_source=None):
+                 input_source: LogicInputSource = None):
         super().__init__(window_size, shader_manager)
         
         self.position = position
         self.radius = radius
         self.off_color = off_color  # Dark gray when off
         self.on_color = on_color    # Green when on
-        self.input_source = input_source  # Componente que fornece o estado (ex: ANDGate)
+        self.input_source: LogicInputSource = input_source  # Componente que fornece o estado (ex: ANDGate)
         
         print(f"[LEDComponent] Created with off_color: {self.off_color}, on_color: {self.on_color}")
         
@@ -108,10 +110,7 @@ class LEDComponent(RenderableComponent):
                 is_on = self._get_led_state()
                 
                 # Escolher cor baseada no estado
-                if is_on:
-                    color = self.on_color
-                else:
-                    color = self.off_color
+                color = self.get_render_color()
                 
                 # Aplicar matriz de projeção
                 loc_proj = glGetUniformLocation(led_shader, "uProjection")
@@ -133,24 +132,40 @@ class LEDComponent(RenderableComponent):
         if self.input_source is None:
             return False
         
-        # Se a fonte de entrada tem um método get_state, use-o primeiro
-        if hasattr(self.input_source, 'get_state'):
-            return self.input_source.get_state()
-        
-        # Se a fonte de entrada tem um método get_result, use-o
-        elif hasattr(self.input_source, 'get_result'):
+        # Se a fonte de entrada tem um método get_result, use-o primeiro (portas lógicas)
+        if hasattr(self.input_source, 'get_result'):
             return self.input_source.get_result()
+        
+        # Se a fonte de entrada tem um método get_state, use-o (outros componentes)
+        elif hasattr(self.input_source, 'get_state'):
+            return self.input_source.get_state()
         
         # Caso contrário, assuma que está desligado
         return False
 
-    def set_input_source(self, source):
+    def set_input_source(self, source: LogicInputSource):
         """Define a fonte de entrada para o LED."""
         self.input_source = source
 
     def get_state(self):
         """Retorna o estado atual do LED."""
         return self._get_led_state()
+
+    def get_render_color(self) -> Tuple[int, int, int]:
+        """
+        Retorna a cor atual para renderização baseada no estado do LED.
+        Separa a lógica de estado da renderização.
+        """
+        is_on = self._get_led_state()
+        return self.on_color if is_on else self.off_color
+    
+    def get_position(self) -> Tuple[int, int]:
+        """Retorna a posição do LED."""
+        return self.position
+    
+    def get_size(self) -> Tuple[int, int]:
+        """Retorna o tamanho do LED (diâmetro)."""
+        return (self.radius * 2, self.radius * 2)
 
     def _destroy(self):
         """Destrói recursos OpenGL."""

@@ -7,7 +7,7 @@ import ctypes
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from .base_component import Component
+from src.components.base_component import Component
 import sys
 import os
 

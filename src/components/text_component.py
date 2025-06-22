@@ -6,7 +6,7 @@ import pygame
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from .base_component import TexturedComponent
+from src.components.base_component import TexturedComponent
 import sys
 import os
 
