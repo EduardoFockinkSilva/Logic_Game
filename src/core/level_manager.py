@@ -221,16 +221,11 @@ class LevelManager:
         self.leds.clear()
     
     def check_level_completion(self):
-        """Check if the current level is completed (generic: any LED ON, or any gate ON)."""
-        # Prefer LED if present
+        """Check if the current level is completed (LED must be ON)."""
+        # Only check LED state - LED represents the final output of the level
         if self.leds:
             for led in self.leds:
                 if hasattr(led, 'get_state') and led.get_state():
-                    return True
-        # Otherwise, check any gate
-        for gate_list in [getattr(self, attr, []) for attr in ['and_gates', 'or_gates', 'not_gates']]:
-            for gate in gate_list:
-                if hasattr(gate, 'get_result') and gate.get_result():
                     return True
         return False
     
@@ -272,7 +267,12 @@ class LevelManager:
         """Callback for start game button"""
         print("Starting game...")
         self.current_level_index = 0
-        self.load_level("game_level")
+        if self.level_sequence:
+            first_level = self.level_sequence[0]
+            self.load_level(first_level)
+        else:
+            print("No levels found!")
+            self.back_to_menu()
     
     def exit_game(self):
         """Callback for exit game button"""
