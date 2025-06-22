@@ -7,6 +7,7 @@ from src.components.core.base_component import Component
 from src.components.ui.text_component import TextComponent
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 
 class DebugHUD(Component):
@@ -30,8 +31,8 @@ class DebugHUD(Component):
         self.last_fps_update = 0
         
         # Configurações
-        self.font_size = 16
-        self.text_color = (255, 255, 0)  # Amarelo para debug
+        self.font_size = ComponentStyle.DEBUG_FONT_SIZE
+        self.text_color = Colors.TEXT_DEBUG  # Amarelo para debug
         self.update_interval = 0.1  # Atualizar FPS a cada 100ms
     
     def _initialize(self):

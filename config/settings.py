@@ -13,7 +13,7 @@ class WindowConfig:
     """Configurações da janela do jogo"""
     
     # Dimensões padrão da janela
-    DEFAULT_WIDTH = 1200
+    DEFAULT_WIDTH = 800
     DEFAULT_HEIGHT = 600
     
     # Título padrão do jogo

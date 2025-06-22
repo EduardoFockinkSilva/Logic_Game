@@ -15,14 +15,16 @@ from src.components.core.interfaces import LogicInputSource, RenderableState
 from typing import List, Callable, Optional, Tuple
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 
 class LogicGate(TexturedComponent, LogicInputSource, RenderableState):
     """Classe base para todas as portas lógicas do jogo"""
     
-    def __init__(self, position: Tuple[int, int] = (0, 0), size: Tuple[int, int] = (60, 40),
-                 off_color: Tuple[int, int, int] = (128, 128, 128),
-                 on_color: Tuple[int, int, int] = (255, 255, 255)):
+    def __init__(self, position: Tuple[int, int] = (0, 0), 
+                 size: Tuple[int, int] = ComponentStyle.DEFAULT_GATE_SIZE,
+                 off_color: Tuple[int, int, int] = Colors.COMPONENT_OFF,
+                 on_color: Tuple[int, int, int] = Colors.COMPONENT_ON):
         """Inicializa nova porta lógica"""
         super().__init__()
         self.inputs: List[LogicInputSource] = []
@@ -97,9 +99,9 @@ class LogicGate(TexturedComponent, LogicInputSource, RenderableState):
     def _create_text_texture(self):
         """Cria textura do texto da porta"""
         pygame.font.init()
-        font_size = min(18, self.size[1] // 4)
+        font_size = min(ComponentStyle.GATE_FONT_SIZE, self.size[1] // 4)
         font = pygame.font.SysFont('Arial', font_size, bold=True)
-        text_surface = font.render(self.__class__.__name__.replace('Gate', ''), True, (255, 255, 255))
+        text_surface = font.render(self.__class__.__name__.replace('Gate', ''), True, Colors.TEXT_WHITE)
         self.create_texture_from_surface(text_surface)
 
     def _create_gate_quad(self):

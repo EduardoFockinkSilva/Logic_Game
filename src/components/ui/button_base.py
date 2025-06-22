@@ -13,6 +13,7 @@ from src.components.core.interfaces import RenderableState
 from typing import Optional, Callable, Tuple
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 # Adicionar o diretório src ao path para imports absolutos
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -21,11 +22,14 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 class ButtonBase(TexturedComponent, RenderableState):
     """Classe base para botões - elimina duplicação de código"""
     
-    def __init__(self, text: str, position: Tuple[int, int], size: Tuple[int, int] = (80, 80),
-                 off_color: Tuple[int, int, int] = (255, 0, 0), on_color: Tuple[int, int, int] = (0, 255, 0),
-                 text_color: Tuple[int, int, int] = (255, 255, 255), window_size: Tuple[int, int] = (800, 600),
-                 shader_manager=None, callback: Optional[Callable] = None, initial_state: bool = False,
-                 button_type: str = "circle"):
+    def __init__(self, text: str, position: Tuple[int, int], 
+                 size: Tuple[int, int] = ComponentStyle.DEFAULT_BUTTON_SIZE,
+                 off_color: Tuple[int, int, int] = Colors.INPUT_OFF, 
+                 on_color: Tuple[int, int, int] = Colors.INPUT_ON,
+                 text_color: Tuple[int, int, int] = Colors.TEXT_WHITE, 
+                 window_size: Tuple[int, int] = (800, 600),
+                 shader_manager=None, callback: Optional[Callable] = None, 
+                 initial_state: bool = False, button_type: str = "circle"):
         super().__init__(window_size, shader_manager)
         
         self.text = text
@@ -106,7 +110,7 @@ class ButtonBase(TexturedComponent, RenderableState):
     def _create_text_texture(self):
         """Cria textura do texto do botão"""
         pygame.font.init()
-        font_size = min(14, self.size[1] // 4)
+        font_size = min(ComponentStyle.BUTTON_FONT_SIZE, self.size[1] // 4)
         font = pygame.font.SysFont('Arial', font_size, bold=True)
         text_surface = font.render(self.text, True, self.text_color)
         self.create_texture_from_surface(text_surface)

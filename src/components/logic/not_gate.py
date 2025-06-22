@@ -1,20 +1,30 @@
 """
-Porta lógica NOT com feedback visual
+Porta lógica NOT
 """
 
-from .logic_gate import LogicGate
+from src.components.logic.logic_gate import LogicGate
+from config.style import Colors
 
 
 class NOTGate(LogicGate):
     """Porta lógica NOT - inverte o valor da entrada"""
     
-    def __init__(self, position, size=(120, 80), off_color=(128, 128, 128), on_color=(173, 216, 230), **kwargs):
-        super().__init__(position=position, size=size, off_color=off_color, on_color=on_color)
-
+    def __init__(self, position=(0, 0), size=None, off_color=None, on_color=None, window_size=(800, 600), shader_manager=None):
+        """Inicializa porta NOT com cores padrão"""
+        if off_color is None:
+            off_color = Colors.NOT_GATE_OFF
+        if on_color is None:
+            on_color = Colors.NOT_GATE_ON
+        
+        super().__init__(position, size, off_color, on_color)
+        self.window_size = window_size
+        self.shader_manager = shader_manager
+    
     def _calculate_result(self) -> bool:
+        """Calcula resultado da porta NOT"""
         if not self.inputs:
-            return True
-        inp = self.inputs[0]
-        return not (inp.get_result() if hasattr(inp, 'get_result') else False)
+            return False
+        # NOT inverte o resultado da primeira entrada
+        return not self.inputs[0].get_result()
 
     add_input_button = LogicGate.add_input 

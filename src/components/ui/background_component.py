@@ -10,6 +10,7 @@ from OpenGL.GLU import *
 from src.components.core.base_component import Component
 from src.core.shader_manager import ShaderManager
 from src.core.renderer import ModernRenderer
+from config import WindowConfig
 
 class BackgroundComponent(Component):
     """Componente que renderiza background animado usando shaders modernos"""
@@ -77,7 +78,9 @@ class BackgroundComponent(Component):
             # Definir uniforms
             self.shader_manager.use_program("background")
             self.shader_manager.set_uniform_1f("uTime", self.time)
-            self.shader_manager.set_uniform_2f("uResolution", 800.0, 600.0)
+            self.shader_manager.set_uniform_2f("uResolution", 
+                                              float(WindowConfig.DEFAULT_WIDTH), 
+                                              float(WindowConfig.DEFAULT_HEIGHT))
             
             # Renderizar usando renderer moderno
             self.renderer.render_quad("background", shader_program)

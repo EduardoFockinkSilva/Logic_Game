@@ -8,18 +8,16 @@ from OpenGL.GLU import *
 from src.components.core.base_component import RenderableComponent
 from src.components.core.interfaces import LogicInputSource, RenderableState
 from typing import Tuple
-
-# Adicionar o diretório src ao path para imports absolutos
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 
 class LEDComponent(RenderableComponent, RenderableState):
     """Componente LED - exibe estado de entrada como círculo colorido"""
     
-    def __init__(self, position, radius=20, 
-                 off_color=(64, 64, 64), on_color=(0, 255, 0),
+    def __init__(self, position, radius=ComponentStyle.DEFAULT_LED_RADIUS, 
+                 off_color=Colors.LED_OFF, on_color=Colors.LED_ON,
                  window_size=(800, 600), shader_manager=None, 
                  input_source: LogicInputSource = None):
         super().__init__(window_size, shader_manager)

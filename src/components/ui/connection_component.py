@@ -15,6 +15,7 @@ from typing import Tuple, Optional
 
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors
 
 
 class ConnectionComponent(RenderableComponent, RenderableState):
@@ -22,8 +23,8 @@ class ConnectionComponent(RenderableComponent, RenderableState):
     
     def __init__(self, start_point: Tuple[int, int], end_point: Tuple[int, int],
                  signal_source: Optional[LogicInputSource] = None,
-                 off_color: Tuple[int, int, int] = (64, 64, 64),
-                 on_color: Tuple[int, int, int] = (0, 255, 0),
+                 off_color: Tuple[int, int, int] = Colors.CONNECTION_OFF,
+                 on_color: Tuple[int, int, int] = Colors.CONNECTION_ON,
                  line_width: int = 3,
                  connection_type: str = 'straight',
                  window_size: Tuple[int, int] = (800, 600),

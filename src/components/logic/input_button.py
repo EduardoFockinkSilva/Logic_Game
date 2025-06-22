@@ -6,14 +6,15 @@ import pygame
 from src.components.ui.button_base import ButtonBase
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 
 class InputButton(ButtonBase):
     """Botão de entrada alternável - usado como entrada para portas lógicas"""
     
-    def __init__(self, text, position, size=(80, 80), 
-                 off_color=(255, 0, 0), on_color=(0, 255, 0),
-                 text_color=(255, 255, 255), window_size=(800, 600), 
+    def __init__(self, text, position, size=ComponentStyle.DEFAULT_BUTTON_SIZE, 
+                 off_color=Colors.INPUT_OFF, on_color=Colors.INPUT_ON,
+                 text_color=Colors.TEXT_WHITE, window_size=(800, 600), 
                  shader_manager=None, initial_state=False):
         super().__init__(
             text=text,

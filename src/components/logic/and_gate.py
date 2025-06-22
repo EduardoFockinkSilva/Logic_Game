@@ -1,19 +1,29 @@
 """
-Porta lógica AND com feedback visual
+Porta lógica AND
 """
 
-from .logic_gate import LogicGate
+from src.components.logic.logic_gate import LogicGate
+from config.style import Colors
 
 
 class ANDGate(LogicGate):
-    """Porta lógica AND - retorna True apenas quando todas as entradas são True"""
+    """Porta lógica AND - retorna True apenas se todas as entradas forem True"""
     
-    def __init__(self, position, size=(120, 80), off_color=(128, 128, 128), on_color=(255, 255, 224), **kwargs):
-        super().__init__(position=position, size=size, off_color=off_color, on_color=on_color)
-
+    def __init__(self, position=(0, 0), size=None, off_color=None, on_color=None, window_size=(800, 600), shader_manager=None):
+        """Inicializa porta AND com cores padrão"""
+        if off_color is None:
+            off_color = Colors.AND_GATE_OFF
+        if on_color is None:
+            on_color = Colors.AND_GATE_ON
+        
+        super().__init__(position, size, off_color, on_color)
+        self.window_size = window_size
+        self.shader_manager = shader_manager
+    
     def _calculate_result(self) -> bool:
+        """Calcula resultado da porta AND"""
         if not self.inputs:
             return False
-        return all(inp.get_result() if hasattr(inp, 'get_result') else False for inp in self.inputs)
+        return all(input_source.get_result() for input_source in self.inputs)
 
     add_input_button = LogicGate.add_input 

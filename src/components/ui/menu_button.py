@@ -8,14 +8,16 @@ from OpenGL.GL import *
 from src.components.ui.button_base import ButtonBase
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 
 class MenuButton(ButtonBase):
     """Botão de menu retangular com efeitos de hover"""
     
-    def __init__(self, text, position, size=(200, 50), color=(100, 150, 255), 
-                 hover_color=(150, 200, 255), window_size=(800, 600), 
-                 shader_manager=None, callback=None, bg_color=(40, 40, 80), border_color=(180, 180, 220)):
+    def __init__(self, text, position, size=ComponentStyle.DEFAULT_MENU_BUTTON_SIZE, 
+                 color=Colors.TEXT_WHITE, hover_color=Colors.MENU_BUTTON_HOVER, 
+                 window_size=(800, 600), shader_manager=None, callback=None, 
+                 bg_color=Colors.MENU_BUTTON_BG, border_color=Colors.MENU_BUTTON_BORDER):
         super().__init__(
             text=text,
             position=position,

@@ -9,11 +9,13 @@ from OpenGL.GLU import *
 from src.components.core.base_component import TexturedComponent
 from src.core.renderer import ModernRenderer
 from src.core.shader_manager import ShaderManager
+from config.style import Colors, ComponentStyle
 
 class TextComponent(TexturedComponent):
     """Componente para renderizar texto usando OpenGL moderno"""
     
-    def __init__(self, text, font_size=48, color=(255,255,255), position=(0.5, 0.05), 
+    def __init__(self, text, font_size=ComponentStyle.NORMAL_FONT_SIZE, 
+                 color=Colors.TEXT_WHITE, position=(0.5, 0.05), 
                  window_size=(800,600), shader_manager=None, centered=True):
         super().__init__(window_size, shader_manager)
         

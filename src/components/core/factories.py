@@ -219,7 +219,7 @@ def create_component_from_data(component_data: dict, shader_manager=None, callba
         if callback_name and callback_name in callbacks:
             kwargs["callback"] = callbacks[callback_name]
     
-    # Remover o tipo dos kwargs pois não é um parâmetro do construtor
+    # Remover campos que não são parâmetros do construtor
     kwargs.pop("type", None)
     kwargs.pop("id", None)  # ID não é usado no construtor
     
@@ -227,21 +227,73 @@ def create_component_from_data(component_data: dict, shader_manager=None, callba
         # Tentar criar baseado no tipo
         if factory_type in component_registry.list_logic_gates():
             position = kwargs.pop("position", (0, 0))
-            return create_logic_gate(factory_type, position, **kwargs)
+            gate_kwargs = {
+                "position": position,
+                "size": kwargs.get("size"),
+                "off_color": kwargs.get("off_color"),
+                "on_color": kwargs.get("on_color"),
+                "shader_manager": kwargs.get("shader_manager")
+            }
+            gate_kwargs = {k: v for k, v in gate_kwargs.items() if v is not None}
+            return create_logic_gate(factory_type, **gate_kwargs)
         
         elif factory_type in component_registry.list_buttons():
             position = kwargs.pop("position", (0, 0))
-            return create_button(factory_type, position, **kwargs)
+            # Só InputButton recebe initial_state
+            button_kwargs = {
+                "text": kwargs.get("text", ""),
+                "position": position,
+                "size": kwargs.get("size"),
+                "off_color": kwargs.get("off_color"),
+                "on_color": kwargs.get("on_color"),
+                "text_color": kwargs.get("text_color"),
+                "window_size": kwargs.get("window_size"),
+                "shader_manager": kwargs.get("shader_manager"),
+                "callback": kwargs.get("callback"),
+                "color": kwargs.get("color"),
+                "hover_color": kwargs.get("hover_color"),
+                "bg_color": kwargs.get("bg_color"),
+                "border_color": kwargs.get("border_color")
+            }
+            if factory_type == "INPUT":
+                button_kwargs["initial_state"] = kwargs.get("initial_state", False)
+            button_kwargs = {k: v for k, v in button_kwargs.items() if v is not None}
+            return create_button(factory_type, **button_kwargs)
         
         elif factory_type in component_registry.list_leds():
             position = kwargs.pop("position", (0, 0))
-            return create_led(factory_type, position, **kwargs)
+            led_kwargs = {
+                "position": position,
+                "radius": kwargs.get("radius"),
+                "off_color": kwargs.get("off_color"),
+                "on_color": kwargs.get("on_color"),
+                "window_size": kwargs.get("window_size"),
+                "shader_manager": kwargs.get("shader_manager"),
+                "input_source": kwargs.get("input_source")
+            }
+            led_kwargs = {k: v for k, v in led_kwargs.items() if v is not None}
+            return create_led(factory_type, **led_kwargs)
         
         elif factory_type in component_registry.list_texts():
-            return create_text(factory_type, **kwargs)
+            text_kwargs = {
+                "text": kwargs.get("text", ""),
+                "font_size": kwargs.get("font_size"),
+                "color": kwargs.get("color"),
+                "position": kwargs.get("position"),
+                "window_size": kwargs.get("window_size"),
+                "shader_manager": kwargs.get("shader_manager"),
+                "centered": kwargs.get("centered", True)
+            }
+            text_kwargs = {k: v for k, v in text_kwargs.items() if v is not None}
+            return create_text(factory_type, **text_kwargs)
         
         elif factory_type in component_registry.list_backgrounds():
-            return create_background(factory_type, **kwargs)
+            bg_kwargs = {
+                "entity": kwargs.get("entity"),
+                "shader_manager": kwargs.get("shader_manager")
+            }
+            bg_kwargs = {k: v for k, v in bg_kwargs.items() if v is not None}
+            return create_background(factory_type, **bg_kwargs)
         
         else:
             print(f"Tipo de componente desconhecido: {component_type} (mapeado para: {factory_type})")

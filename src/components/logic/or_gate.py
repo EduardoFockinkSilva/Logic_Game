@@ -1,19 +1,29 @@
 """
-Porta lógica OR com feedback visual
+Porta lógica OR
 """
 
-from .logic_gate import LogicGate
+from src.components.logic.logic_gate import LogicGate
+from config.style import Colors
 
 
 class ORGate(LogicGate):
-    """Porta lógica OR - retorna True quando pelo menos uma entrada é True"""
+    """Porta lógica OR - retorna True se pelo menos uma entrada for True"""
     
-    def __init__(self, position, size=(120, 80), off_color=(128, 128, 128), on_color=(255, 192, 203), **kwargs):
-        super().__init__(position=position, size=size, off_color=off_color, on_color=on_color)
-
+    def __init__(self, position=(0, 0), size=None, off_color=None, on_color=None, window_size=(800, 600), shader_manager=None):
+        """Inicializa porta OR com cores padrão"""
+        if off_color is None:
+            off_color = Colors.OR_GATE_OFF
+        if on_color is None:
+            on_color = Colors.OR_GATE_ON
+        
+        super().__init__(position, size, off_color, on_color)
+        self.window_size = window_size
+        self.shader_manager = shader_manager
+    
     def _calculate_result(self) -> bool:
+        """Calcula resultado da porta OR"""
         if not self.inputs:
             return False
-        return any(inp.get_result() if hasattr(inp, 'get_result') else False for inp in self.inputs)
+        return any(input_source.get_result() for input_source in self.inputs)
 
     add_input_button = LogicGate.add_input 
