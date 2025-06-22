@@ -12,7 +12,7 @@ class ShaderManager:
     """Gerenciador de shaders OpenGL - carrega, compila e gerencia shaders"""
     
     def __init__(self):
-        """Inicializa o gerenciador de shaders"""
+        """Inicializa gerenciador de shaders"""
         self.shaders: Dict[str, int] = {}
         self.programs: Dict[str, int] = {}
     

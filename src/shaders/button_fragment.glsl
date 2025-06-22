@@ -6,17 +6,14 @@ out vec4 FragColor;
 
 void main()
 {
-    // Calculate distance from center
+    // Distância do centro
     vec2 center = vec2(0.5, 0.5);
     float distance = length(TexCoord - center);
     
-    // Create a circle with smooth edges
+    // Círculo com bordas suaves
     float radius = 0.45;
     float smoothness = 0.05;
-    
-    // Smooth circle function
     float circle = smoothstep(radius + smoothness, radius - smoothness, distance);
     
-    // Use the color from vertex shader
     FragColor = vec4(Color.rgb, Color.a * circle);
 } 

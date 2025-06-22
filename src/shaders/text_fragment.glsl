@@ -9,7 +9,7 @@ void main()
 {
     vec4 texColor = texture(textTexture, TexCoord);
     
-    // Se o pixel for transparente, descartar
+    // Descartar pixels transparentes
     if(texColor.a < 0.1)
         discard;
     
