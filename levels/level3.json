@@ -51,7 +51,7 @@
       "text_color": [255, 255, 255],
       "window_size": [800, 600],
       "shader_manager": "default",
-      "initial_state": false
+      "initial_state": true
     },
     {
       "id": "and_gate_1",

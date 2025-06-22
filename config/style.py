@@ -75,8 +75,26 @@ class ComponentStyle:
     NORMAL_FONT_SIZE = 36
     SMALL_FONT_SIZE = 18
     DEBUG_FONT_SIZE = 16
-    BUTTON_FONT_SIZE = 14
+    BUTTON_FONT_SIZE = 24
     GATE_FONT_SIZE = 18
+    MENU_BUTTON_FONT_SIZE = 28
+
+    # Configurações de fonte
+    DEFAULT_FONT_FAMILY = 'Segoe UI'  # Fonte moderna do Windows
+    MENU_FONT_FAMILY = 'Segoe UI'     # Fonte moderna para botões de menu
+    FONT_BOLD = True
+    FONT_ITALIC = False
+    
+    # Lista de fontes preferidas (em ordem de preferência)
+    PREFERRED_FONTS = [
+        'Segoe UI',      # Moderna e legível
+        'Calibri',       # Excelente para interface
+        'Verdana',       # Muito legível
+        'Tahoma',        # Boa para interface
+        'Trebuchet MS',  # Moderna e elegante
+        'Arial',         # Fallback padrão
+        'Helvetica'      # Fallback universal
+    ]
 
     # Posições padrão (relativas à janela)
     TITLE_POSITION = (0.5, 0.15)

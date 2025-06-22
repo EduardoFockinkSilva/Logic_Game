@@ -110,8 +110,33 @@ class ButtonBase(TexturedComponent, RenderableState):
     def _create_text_texture(self):
         """Cria textura do texto do botão"""
         pygame.font.init()
-        font_size = min(ComponentStyle.BUTTON_FONT_SIZE, self.size[1] // 4)
-        font = pygame.font.SysFont('Arial', font_size, bold=True)
+        
+        # Determinar tamanho da fonte baseado no tipo de botão
+        if hasattr(self, 'button_type') and self.button_type == "rectangle":
+            # Para botões de menu, usar fonte maior
+            font_size = min(ComponentStyle.MENU_BUTTON_FONT_SIZE, self.size[1] // 2)
+        else:
+            # Para outros botões
+            font_size = min(ComponentStyle.BUTTON_FONT_SIZE, self.size[1] // 3)
+        
+        # Tentar usar fontes mais bonitas disponíveis no sistema
+        font = None
+        for font_name in ComponentStyle.PREFERRED_FONTS:
+            try:
+                if ComponentStyle.FONT_BOLD:
+                    font = pygame.font.SysFont(font_name, font_size, bold=True)
+                else:
+                    font = pygame.font.SysFont(font_name, font_size)
+                # Testar se a fonte foi carregada corretamente
+                test_surface = font.render("Test", True, (255, 255, 255))
+                break
+            except:
+                continue
+        
+        # Fallback para Arial se nenhuma fonte preferida funcionar
+        if font is None:
+            font = pygame.font.SysFont('Arial', font_size, bold=ComponentStyle.FONT_BOLD)
+        
         text_surface = font.render(self.text, True, self.text_color)
         self.create_texture_from_surface(text_surface)
 

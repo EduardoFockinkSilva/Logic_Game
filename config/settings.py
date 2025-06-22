@@ -34,7 +34,7 @@ class ComponentConfig:
     DEFAULT_BUTTON_SIZE = (80, 80)
     DEFAULT_GATE_SIZE = (120, 80)
     DEFAULT_LED_RADIUS = 30
-    DEFAULT_MENU_BUTTON_SIZE = (100, 45)
+    DEFAULT_MENU_BUTTON_SIZE = (120, 55)
     DEFAULT_LARGE_BUTTON_SIZE = (300, 75)
     
     # Tamanhos de fonte
@@ -43,8 +43,9 @@ class ComponentConfig:
     NORMAL_FONT_SIZE = 36
     SMALL_FONT_SIZE = 18
     DEBUG_FONT_SIZE = 16
-    BUTTON_FONT_SIZE = 14
+    BUTTON_FONT_SIZE = 24
     GATE_FONT_SIZE = 18
+    MENU_BUTTON_FONT_SIZE = 32
     
     # Posições padrão (relativas à janela)
     TITLE_POSITION = (0.5, 0.15)
