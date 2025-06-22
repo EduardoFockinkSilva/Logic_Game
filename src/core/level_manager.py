@@ -9,6 +9,7 @@ from src.components.text_component import TextComponent
 from src.components.menu_button import MenuButton
 from src.components.input_button import InputButton
 from src.components.and_gate import ANDGate
+from src.components.led_component import LEDComponent
 
 
 class LevelManager:
@@ -27,6 +28,7 @@ class LevelManager:
         # Store components for reference
         self.input_buttons = []
         self.and_gates = []
+        self.leds = []
     
     def load_level(self, level_name):
         """Load a level from JSON file"""
@@ -57,6 +59,9 @@ class LevelManager:
             
             # Connect gates to their input buttons after all components are loaded
             self._connect_gates_to_inputs()
+            
+            # Connect LEDs to their input sources
+            self._connect_leds_to_inputs()
             
             self.current_level = level_name
             print(f"Loaded level: {level_data.get('name', level_name)}")
@@ -126,6 +131,18 @@ class LevelManager:
             self.and_gates.append(gate)
             return gate
         
+        elif component_type == "led":
+            led = LEDComponent(
+                position=tuple(component_data["position"]),
+                radius=component_data.get("radius", 20),
+                off_color=tuple(component_data.get("off_color", [64, 64, 64])),
+                on_color=tuple(component_data.get("on_color", [0, 255, 0])),
+                window_size=tuple(component_data["window_size"]),
+                shader_manager=shader_manager
+            )
+            self.leds.append(led)
+            return led
+        
         elif component_type == "background":
             return BackgroundComponent(shader_manager=shader_manager)
         
@@ -142,11 +159,19 @@ class LevelManager:
                 for button in self.input_buttons:
                     gate.add_input_button(button)
     
+    def _connect_leds_to_inputs(self):
+        """Connect LEDs to their input sources based on component IDs"""
+        # For now, connect all LEDs to the first AND gate
+        if self.leds and self.and_gates:
+            for led in self.leds:
+                led.set_input_source(self.and_gates[0])
+    
     def clear_current_level(self):
         """Clear all components from current level"""
         self.game_engine.clear_components()
         self.input_buttons.clear()
         self.and_gates.clear()
+        self.leds.clear()
     
     # Callback methods
     def start_game(self):

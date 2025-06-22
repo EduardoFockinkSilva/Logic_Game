@@ -49,11 +49,20 @@
     },
     {
       "type": "and_gate",
-      "position": [400, 250],
+      "position": [350, 250],
       "size": [120, 80],
       "off_color": [128, 128, 128],
       "on_color": [255, 255, 224],
       "text_color": [255, 255, 255],
+      "window_size": [800, 600],
+      "shader_manager": "default"
+    },
+    {
+      "type": "led",
+      "position": [550, 260],
+      "radius": 25,
+      "off_color": [64, 64, 64],
+      "on_color": [0, 255, 0],
       "window_size": [800, 600],
       "shader_manager": "default"
     },
@@ -63,6 +72,15 @@
       "font_size": 16,
       "color": [150, 150, 150],
       "position": [0.5, 0.8],
+      "window_size": [800, 600],
+      "shader_manager": "default"
+    },
+    {
+      "type": "text",
+      "text": "LED shows AND gate output",
+      "font_size": 14,
+      "color": [120, 120, 120],
+      "position": [0.75, 0.5],
       "window_size": [800, 600],
       "shader_manager": "default"
     },
