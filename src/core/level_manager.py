@@ -6,14 +6,7 @@ import json
 import os
 import glob
 from src.components.factories import create_component_from_data, create_background
-from src.components.background_component import BackgroundComponent
-from src.components.text_component import TextComponent
 from src.components.menu_button import MenuButton
-from src.components.input_button import InputButton
-from src.components.and_gate import ANDGate
-from src.components.or_gate import ORGate
-from src.components.not_gate import NOTGate
-from src.components.led_component import LEDComponent
 
 
 class LevelManager:
