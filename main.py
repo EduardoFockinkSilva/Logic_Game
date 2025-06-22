@@ -22,6 +22,9 @@ def main():
     # Criar gerenciador de níveis
     level_manager = LevelManager(engine)
     
+    # Conectar level manager ao engine
+    engine.set_level_manager(level_manager)
+    
     # Carregar o menu inicial
     level_manager.load_level("menu")
     

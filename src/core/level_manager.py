@@ -22,13 +22,19 @@ class LevelManager:
         self.callbacks = {
             "start_game": self.start_game,
             "exit_game": self.exit_game,
-            "back_to_menu": self.back_to_menu
+            "back_to_menu": self.back_to_menu,
+            "next_level": self.next_level,
+            "complete_level": self.complete_level
         }
         
         # Store components for reference
         self.input_buttons = []
         self.and_gates = []
         self.leds = []
+        
+        # Level progression
+        self.level_sequence = ["game_level", "level2"]
+        self.current_level_index = 0
     
     def load_level(self, level_name):
         """Load a level from JSON file"""
@@ -173,10 +179,59 @@ class LevelManager:
         self.and_gates.clear()
         self.leds.clear()
     
+    def check_level_completion(self):
+        """Check if the current level is completed"""
+        if self.current_level == "game_level":
+            # Level 1 is completed when the AND gate output is ON (both inputs are ON)
+            if self.and_gates and self.and_gates[0].get_result():
+                return True
+        elif self.current_level == "level2":
+            # Level 2 is completed when the AND gate output is ON (both inputs are ON)
+            if self.and_gates and self.and_gates[0].get_result():
+                return True
+        return False
+    
+    def add_completion_button(self):
+        """Add completion button when level is completed"""
+        if self.check_level_completion():
+            # Add completion button
+            if self.current_level == "game_level":
+                # Add "Next Level" button for level 1
+                next_button = MenuButton(
+                    text="Next Level",
+                    position=(300, 400),
+                    size=(200, 50),
+                    color=(255, 255, 255),
+                    hover_color=(200, 255, 200),
+                    window_size=(800, 600),
+                    shader_manager=self.game_engine.get_shader_manager(),
+                    callback=self.next_level,
+                    bg_color=(60, 120, 60),
+                    border_color=(100, 180, 100)
+                )
+                self.game_engine.add_component(next_button)
+                
+            elif self.current_level == "level2":
+                # Add "Back to Menu" button for final level
+                menu_button = MenuButton(
+                    text="Back to Menu",
+                    position=(300, 400),
+                    size=(200, 50),
+                    color=(255, 255, 255),
+                    hover_color=(200, 200, 255),
+                    window_size=(800, 600),
+                    shader_manager=self.game_engine.get_shader_manager(),
+                    callback=self.back_to_menu,
+                    bg_color=(60, 60, 120),
+                    border_color=(100, 100, 180)
+                )
+                self.game_engine.add_component(menu_button)
+    
     # Callback methods
     def start_game(self):
         """Callback for start game button"""
         print("Starting game...")
+        self.current_level_index = 0
         self.load_level("game_level")
     
     def exit_game(self):
@@ -188,4 +243,21 @@ class LevelManager:
     def back_to_menu(self):
         """Callback for back to menu button"""
         print("Returning to menu...")
-        self.load_level("menu") 
+        self.current_level_index = 0
+        self.load_level("menu")
+    
+    def next_level(self):
+        """Callback for next level button"""
+        print("Loading next level...")
+        self.current_level_index += 1
+        if self.current_level_index < len(self.level_sequence):
+            next_level = self.level_sequence[self.current_level_index]
+            self.load_level(next_level)
+        else:
+            # All levels completed, go back to menu
+            self.back_to_menu()
+    
+    def complete_level(self):
+        """Callback for level completion"""
+        print("Level completed!")
+        self.add_completion_button() 

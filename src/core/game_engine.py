@@ -43,6 +43,9 @@ class GameEngine:
         # Gerenciador de shaders
         self.shader_manager = ShaderManager()
         
+        # Level manager reference
+        self.level_manager = None
+        
         # Tempo
         self.last_time = 0.0
         self.delta_time = 0.0
@@ -102,6 +105,15 @@ class GameEngine:
             component.destroy()
             self.components.remove(component)
     
+    def set_level_manager(self, level_manager) -> None:
+        """
+        Define o gerenciador de níveis.
+        
+        Args:
+            level_manager: Gerenciador de níveis
+        """
+        self.level_manager = level_manager
+    
     def clear_components(self) -> None:
         """
         Remove todos os componentes do jogo.
@@ -118,10 +130,14 @@ class GameEngine:
         
         for component in self.components:
             component.update(self.delta_time)
+        
+        # Check for level completion
+        if self.level_manager:
+            self.level_manager.add_completion_button()
     
     def render(self) -> None:
         """Renderiza todos os componentes."""
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(int(GL_COLOR_BUFFER_BIT) | int(GL_DEPTH_BUFFER_BIT))
         
         # Configurar viewport para renderização
         glViewport(0, 0, self.width, self.height)
