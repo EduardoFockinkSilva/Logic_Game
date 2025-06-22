@@ -64,7 +64,7 @@ class MenuButton(Component):
         if self.shader_manager is None:
             self.shader_manager = ShaderManager()
         
-        # Carregar shader de texto apenas se não foi carregado antes
+        # Carregar shader de texto
         try:
             if not self.shader_manager.has_program("text"):
                 self.shader_manager.load_shader(
@@ -72,9 +72,16 @@ class MenuButton(Component):
                     "src/shaders/text_vertex.glsl",
                     "src/shaders/text_fragment.glsl"
                 )
+            # Carregar shader de botão
+            if not self.shader_manager.has_program("button"):
+                self.shader_manager.load_shader(
+                    "button",
+                    "src/shaders/button_vertex.glsl",
+                    "src/shaders/button_fragment.glsl"
+                )
             self.shader_ok = True
         except Exception as e:
-            print(f"[MenuButton] Erro ao carregar shader de texto: {e}")
+            print(f"[MenuButton] Erro ao carregar shader: {e}")
             self.shader_ok = False
             return
         
@@ -174,25 +181,28 @@ class MenuButton(Component):
             [0, 0, 0, 1]
         ], dtype=np.float32)
         try:
-            shader_program = self.shader_manager.get_program("text")
-            if shader_program:
-                glUseProgram(shader_program)
-                # Desenhar retângulo preenchido (botão)
+            # --- Desenhar retângulo do botão (fundo) ---
+            button_shader = self.shader_manager.get_program("button")
+            if button_shader:
+                glUseProgram(button_shader)
                 color = self.hover_color if self.is_hovered else self.bg_color
-                loc_proj = glGetUniformLocation(shader_program, "uProjection")
+                loc_proj = glGetUniformLocation(button_shader, "uProjection")
                 if loc_proj != -1:
                     glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
-                
-                # Desenhar quad do botão (sem textura)
-                glUniform1i(glGetUniformLocation(shader_program, "textTexture"), 0)
+                # Atributo de cor (location = 2)
                 glVertexAttrib4f(2, color[0]/255.0, color[1]/255.0, color[2]/255.0, 0.85)
-                self.button_renderer.render_quad(self.vao_name, shader_program)
-                
-                # Desenhar texto por cima com a cor correta
+                self.button_renderer.render_quad(self.vao_name, button_shader)
+            # --- Desenhar texto por cima ---
+            text_shader = self.shader_manager.get_program("text")
+            if text_shader:
+                glUseProgram(text_shader)
+                loc_proj = glGetUniformLocation(text_shader, "uProjection")
+                if loc_proj != -1:
+                    glUniformMatrix4fv(loc_proj, 1, GL_TRUE, ortho)
                 text_color = self.hover_color if self.is_hovered else self.color
                 glVertexAttrib4f(2, text_color[0]/255.0, text_color[1]/255.0, text_color[2]/255.0, 1.0)
                 glBindTexture(GL_TEXTURE_2D, self.text_texture_id)
-                self.text_renderer.render_quad(self.text_vao_name, shader_program, self.text_texture_id)
+                self.text_renderer.render_quad(self.text_vao_name, text_shader, self.text_texture_id)
                 glBindTexture(GL_TEXTURE_2D, 0)
         except Exception as e:
             print(f"[MenuButton] Erro ao renderizar botão: {e}")
